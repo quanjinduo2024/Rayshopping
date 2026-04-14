@@ -1,0 +1,14 @@
+[project]
+name = "user-service"
+version = "0.1.0"
+description = "Rayshopping User Service"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--cov=app --cov-report=term-missing --cov-fail-under=80"
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["E203", "W503"]
