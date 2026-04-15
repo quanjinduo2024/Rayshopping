@@ -87,6 +87,60 @@ npm run dev
 - user-service API 文档: http://localhost:8001/docs
 - shop-service API 文档: http://localhost:8002/docs
 
+## 本地开发配置（多人协作）
+
+如果团队成员在不同电脑上分别运行微服务，需要进行以下配置：
+
+### 1. 统一 SECRET_KEY
+
+确保所有服务的 `.env` 文件中的 `SECRET_KEY` 完全一致：
+
+```env
+SECRET_KEY=your-secret-key-change-in-production-at-least-32-chars
+```
+
+### 2. 配置服务绑定地址
+
+每个服务都需要绑定到 `0.0.0.0` 而不是 `localhost`，这样其他电脑才能访问：
+
+```env
+HOST=0.0.0.0
+```
+
+### 3. 配置跨服务调用地址
+
+在 shop-service 的 `.env` 中配置 user-service 的地址（运行 user-service 的电脑的IP）：
+
+```env
+USER_SERVICE_URL=http://<组员A的IP>:8001
+```
+
+### 4. 配置前端代理
+
+在 `frontend/vite.config.ts` 中配置各服务的代理地址：
+
+```typescript
+server: {
+  port: 3000,
+  proxy: {
+    '/api/v1/user': {
+      target: 'http://<user-service的IP>:8001',
+      changeOrigin: true,
+    },
+    '/api/v1': {
+      target: 'http://<shop-service的IP>:8002',
+      changeOrigin: true,
+    },
+  },
+}
+```
+
+**注意**：`vite.config.ts` 的本地配置不要提交到 git，团队成员各自在本地修改。
+
+### 5. 防火墙设置
+
+确保各电脑的防火墙开放了相应端口（8001、8002）。
+
 ## 技术栈
 
 - 前端: React 18 + Ant Design 5 + Vite + TypeScript
@@ -99,3 +153,4 @@ npm run dev
 - 测试左移：先写测试用例，再实现功能
 - 单元测试覆盖率不低于 80%
 - 分支策略：main → develop → feature/*
+- 本地配置（`.env`、`vite.config.ts`）不要提交到 git
