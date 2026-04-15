@@ -53,9 +53,9 @@ const Home = () => {
     { id: 6, name: '食品生鲜', icon: '🍎' },
   ]
 
-  // 分类点击跳转到商品列表
-  const handleCategoryClick = () => {
-    navigate('/goods')
+  // 分类点击跳转到商品列表并筛选
+  const handleCategoryClick = (categoryName: string) => {
+    navigate(`/goods?category=${encodeURIComponent(categoryName)}`)
   }
 
   // 轮播图数据
@@ -85,7 +85,7 @@ const Home = () => {
                     cursor: 'pointer',
                     borderBottom: '1px solid #f0f0f0',
                   }}
-                  onClick={handleCategoryClick}
+                  onClick={() => handleCategoryClick(item.name)}
                 >
                   <span style={{ marginRight: '10px', fontSize: '18px' }}>{item.icon}</span>
                   <span>{item.name}</span>

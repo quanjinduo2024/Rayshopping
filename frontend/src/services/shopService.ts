@@ -4,8 +4,12 @@ import type { CartItem, CartListResponse, AddCartRequest, UpdateCartRequest } fr
 import type { Order, OrderDetail, OrderListResponse, CheckoutRequest, CartCheckoutRequest } from '@/types/order'
 
 export const shopService = {
-  getGoodsList: (page = 1, size = 20): Promise<GoodsListResponse> => {
-    return request.get('/api/v1/goods/list', { params: { page, size } })
+  getGoodsList: (page = 1, size = 20, category?: string): Promise<GoodsListResponse> => {
+    const params: Record<string, any> = { page, size }
+    if (category) {
+      params.category = category
+    }
+    return request.get('/api/v1/goods/list', { params })
   },
 
   getGoodsDetail: (goodsId: number): Promise<Goods> => {

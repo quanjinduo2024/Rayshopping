@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from typing import Optional
 
 from app.database import get_db
 from app.schemas.goods import GoodsResponse, GoodsListResponse
@@ -12,10 +13,11 @@ router = APIRouter(prefix="/goods", tags=["goods"])
 def get_goods_list(
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
+    category: Optional[str] = Query(None, description="商品分类"),
     db: Session = Depends(get_db),
 ):
-    """获取商品列表"""
-    items, total = GoodsService.get_goods_list(db, page=page, size=size)
+    """获取商品列表，支持按分类筛选"""
+    items, total = GoodsService.get_goods_list(db, page=page, size=size, category=category)
     return GoodsListResponse(items=items, total=total)
 
 

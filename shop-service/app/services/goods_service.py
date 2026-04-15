@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -13,10 +13,15 @@ class GoodsService:
         return db.query(Goods).filter(Goods.goods_id == goods_id).first()
 
     @staticmethod
-    def get_goods_list(db: Session, page: int = 1, size: int = 20) -> Tuple[List[GoodsResponse], int]:
-        """获取商品列表"""
+    def get_goods_list(db: Session, page: int = 1, size: int = 20, category: Optional[str] = None) -> Tuple[List[GoodsResponse], int]:
+        """获取商品列表，支持按分类筛选"""
         offset = (page - 1) * size
         query = db.query(Goods)
+
+        # 按分类筛选
+        if category:
+            query = query.filter(Goods.category == category)
+
         total = query.count()
         items = query.order_by(Goods.create_time.desc()).offset(offset).limit(size).all()
         return [GoodsResponse.model_validate(item) for item in items], total
