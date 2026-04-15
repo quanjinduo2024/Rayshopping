@@ -6,9 +6,11 @@
 
 ```
 Rayshopping/
-├── frontend/          # React + TypeScript + Vite 前端
+├── frontend/          # React + TypeScript + Vite 用户前端 (端口 3000)
+├── admin-frontend/    # React + TypeScript + Vite 管理后台前端 (端口 3001)
 ├── user-service/      # FastAPI 用户服务 (端口 8001)
 ├── shop-service/      # FastAPI 购物服务 (端口 8002)
+├── admin-service/     # FastAPI 管理后台服务 (端口 8003)
 ├── docs/              # 项目文档
 └── prd.md             # 产品需求文档
 ```
@@ -69,7 +71,30 @@ python scripts/init_db.py
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
 ```
 
-### 启动前端服务 (端口 3000)
+#### 3. 启动 admin-service (端口 8003)
+
+```bash
+cd admin-service
+
+# 创建虚拟环境（可选）
+python -m venv venv
+# Windows 激活: venv\Scripts\activate
+# Linux/Mac 激活: source venv/bin/activate
+
+# 安装依赖
+pip install -r requirements.txt
+
+# 复制环境配置
+copy .env.example .env
+
+# 初始化数据库（创建管理员账号）
+python scripts/init_admin.py
+
+# 启动服务
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload
+```
+
+### 启动用户前端服务 (端口 3000)
 
 ```bash
 cd frontend
@@ -77,15 +102,39 @@ cd frontend
 # 安装依赖
 npm install
 
+# 复制配置模板
+copy vite.config.ts.example vite.config.ts
+
+# 根据需要修改 vite.config.ts 中的代理地址
+
+# 启动开发服务器
+npm run dev
+```
+
+### 启动管理后台前端服务 (端口 3001)
+
+```bash
+cd admin-frontend
+
+# 安装依赖
+npm install
+
+# 复制配置模板
+copy vite.config.ts.example vite.config.ts
+
+# 根据需要修改 vite.config.ts 中的代理地址
+
 # 启动开发服务器
 npm run dev
 ```
 
 ### 访问应用
 
-- 前端: http://localhost:3000
+- 用户前端: http://localhost:3000
+- 管理后台: http://localhost:3001 (默认账号: admin / admin123)
 - user-service API 文档: http://localhost:8001/docs
 - shop-service API 文档: http://localhost:8002/docs
+- admin-service API 文档: http://localhost:8003/docs
 
 ## 本地开发配置（多人协作）
 

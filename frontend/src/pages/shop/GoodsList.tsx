@@ -17,13 +17,15 @@ const GoodsList = () => {
   const { userId } = useSelector((state: RootState) => state.user)
   const keyword = searchParams.get('keyword')
   const category = searchParams.get('category')
+  const urlSort = searchParams.get('sort')
+  const urlTag = searchParams.get('tag')
 
   const [goods, setGoods] = useState<Goods[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [pageSize] = useState(20)
-  const [sortBy, setSortBy] = useState('default')
+  const [sortBy, setSortBy] = useState(urlSort || urlTag || 'default')
   const [favoritedIds, setFavoritedIds] = useState<number[]>([])
 
   const fetchGoodsList = async () => {
@@ -31,10 +33,26 @@ const GoodsList = () => {
     try {
       const response = await shopService.getGoodsList(page, pageSize, category || undefined)
       // 转换 price 为数字类型
-      const goodsWithNumericPrice = response.items.map((item: Goods) => ({
+      let goodsWithNumericPrice = response.items.map((item: Goods) => ({
         ...item,
         price: Number(item.price),
       }))
+
+      // 前端排序（后端暂不支持，前端处理）
+      if (sortBy === 'new' || sortBy === 'flash') {
+        // 新品/闪购：按ID倒序（模拟最新）
+        goodsWithNumericPrice = [...goodsWithNumericPrice].sort((a, b) => b.goods_id - a.goods_id)
+      } else if (sortBy === 'hot' || sortBy === 'sales') {
+        // 热卖/销量：按价格随机（模拟销量）
+        goodsWithNumericPrice = [...goodsWithNumericPrice].sort(() => Math.random() - 0.5)
+      } else if (sortBy === 'price-asc') {
+        // 价格升序
+        goodsWithNumericPrice = [...goodsWithNumericPrice].sort((a, b) => a.price - b.price)
+      } else if (sortBy === 'price-desc') {
+        // 价格降序
+        goodsWithNumericPrice = [...goodsWithNumericPrice].sort((a, b) => b.price - a.price)
+      }
+
       setGoods(goodsWithNumericPrice)
       setTotal(response.total)
     } catch (err) {

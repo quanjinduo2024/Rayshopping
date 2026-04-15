@@ -49,6 +49,18 @@ export const shopService = {
     return request.get('/api/v1/order/detail', { params: { order_id: orderId } })
   },
 
+  payOrder: (orderId: number): Promise<Order> => {
+    return request.post('/api/v1/order/pay', null, { params: { order_id: orderId } })
+  },
+
+  receiveOrder: (orderId: number): Promise<Order> => {
+    return request.post('/api/v1/order/receive', null, { params: { order_id: orderId } })
+  },
+
+  cancelOrder: (orderId: number): Promise<Order> => {
+    return request.post('/api/v1/order/cancel', null, { params: { order_id: orderId } })
+  },
+
   addFavorite: (goodsId: number): Promise<FavoriteItem> => {
     return request.post('/api/v1/favorite/add', { goods_id: goodsId })
   },

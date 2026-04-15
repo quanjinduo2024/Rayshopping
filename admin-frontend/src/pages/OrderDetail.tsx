@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Typography, Spin, message, Button, Card, Tag, Space, Divider, Steps, Row, Col } from 'antd'
-import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, CreditCardOutlined, SendOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import { shopService } from '@/services/shopService'
-import type { OrderDetail as OrderDetailType } from '@/types/order'
+import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, SendOutlined, CreditCardOutlined, ArrowLeftOutlined } from '@ant-design/icons'
+import { adminService } from '../services/api'
+import type { OrderDetail as OrderDetailType } from '../types'
 
-const { Title, Text, Paragraph } = Typography
+const { Title, Text } = Typography
 const { Step } = Steps
 
 type OrderStatus = 'pending_payment' | 'pending_shipment' | 'pending_receipt' | 'completed' | 'cancelled' | 'refunded'
@@ -15,13 +15,13 @@ const OrderDetail = () => {
   const navigate = useNavigate()
   const [order, setOrder] = useState<OrderDetailType | null>(null)
   const [loading, setLoading] = useState(false)
-  const [actionLoading, setActionLoading] = useState(false)
+  const [shipLoading, setShipLoading] = useState(false)
 
   const fetchOrderDetail = async () => {
     if (!id) return
     setLoading(true)
     try {
-      const data = await shopService.getOrderDetail(parseInt(id))
+      const data = await adminService.getOrderDetail(parseInt(id))
       const orderData = {
         ...data,
         total_price: Number(data.total_price),
@@ -97,49 +97,19 @@ const OrderDetail = () => {
     return { steps: allSteps, current }
   }
 
-  const canPay = (status: OrderStatus) => status === 'pending_payment'
-  const canReceive = (status: OrderStatus) => status === 'pending_receipt'
-  const canCancel = (status: OrderStatus) => ['pending_payment', 'pending_shipment'].includes(status)
+  const canShip = (status: OrderStatus) => status === 'pending_shipment'
 
-  const handlePay = async () => {
+  const handleShip = async () => {
     if (!order) return
-    setActionLoading(true)
+    setShipLoading(true)
     try {
-      await shopService.payOrder(order.order_id)
-      message.success('付款成功！')
+      await adminService.shipOrder(order.order_id)
+      message.success('发货成功')
       fetchOrderDetail()
     } catch (err) {
-      message.error('付款失败')
+      message.error('发货失败')
     } finally {
-      setActionLoading(false)
-    }
-  }
-
-  const handleReceive = async () => {
-    if (!order) return
-    setActionLoading(true)
-    try {
-      await shopService.receiveOrder(order.order_id)
-      message.success('确认收货成功！')
-      fetchOrderDetail()
-    } catch (err) {
-      message.error('确认收货失败')
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  const handleCancel = async () => {
-    if (!order) return
-    setActionLoading(true)
-    try {
-      await shopService.cancelOrder(order.order_id)
-      message.success('订单已取消')
-      fetchOrderDetail()
-    } catch (err) {
-      message.error('取消订单失败')
-    } finally {
-      setActionLoading(false)
+      setShipLoading(false)
     }
   }
 
@@ -165,74 +135,44 @@ const OrderDetail = () => {
   const { steps, current } = getOrderSteps(order.status as OrderStatus)
 
   return (
-    <div className="jd-page-content" style={{ padding: '20px 50px' }}>
+    <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <Title level={2}>订单详情</Title>
         <Space>
-          <Link to="/orders">
-            <Button>返回订单列表</Button>
-          </Link>
-          <Button type="primary" onClick={() => navigate('/goods')}>
-            继续购物
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/orders')}>
+            返回订单列表
           </Button>
+          <Title level={2} style={{ margin: 0 }}>订单详情</Title>
+        </Space>
+        <Space>
+          {canShip(order.status as OrderStatus) && (
+            <Button
+              type="primary"
+              icon={<SendOutlined />}
+              loading={shipLoading}
+              onClick={handleShip}
+            >
+              发货
+            </Button>
+          )}
         </Space>
       </div>
 
       <Row gutter={20}>
         <Col xs={24} md={16}>
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
-              订单状态
-            </Title>
+          <Card title="订单状态" style={{ marginBottom: 20 }}>
             <Steps current={current} items={steps} style={{ padding: '20px 0' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
               <div>
                 <Text type="secondary">订单号：</Text>
                 <Text strong>{order.order_id}</Text>
               </div>
-              <Space>
-                <Tag color={getStatusColor(order.status as OrderStatus)} style={{ fontSize: 14, padding: '4px 12px' }}>
-                  {getStatusText(order.status as OrderStatus)}
-                </Tag>
-                {canPay(order.status as OrderStatus) && (
-                  <Button
-                    type="primary"
-                    icon={<CreditCardOutlined />}
-                    loading={actionLoading}
-                    onClick={handlePay}
-                  >
-                    立即付款
-                  </Button>
-                )}
-                {canReceive(order.status as OrderStatus) && (
-                  <Button
-                    type="primary"
-                    icon={<CheckCircleOutlined />}
-                    loading={actionLoading}
-                    onClick={handleReceive}
-                  >
-                    确认收货
-                  </Button>
-                )}
-                {canCancel(order.status as OrderStatus) && (
-                  <Button
-                    danger
-                    icon={<CloseCircleOutlined />}
-                    loading={actionLoading}
-                    onClick={handleCancel}
-                  >
-                    取消订单
-                  </Button>
-                )}
-              </Space>
+              <Tag color={getStatusColor(order.status as OrderStatus)} style={{ fontSize: 14, padding: '4px 12px' }}>
+                {getStatusText(order.status as OrderStatus)}
+              </Tag>
             </div>
-          </div>
+          </Card>
 
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
-              <EnvironmentOutlined style={{ marginRight: 8 }} />
-              收货信息
-            </Title>
+          <Card title="收货信息" style={{ marginBottom: 20 }}>
             <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: 4 }}>
               <div style={{ marginBottom: 8 }}>
                 <Text strong>张三</Text>
@@ -240,14 +180,9 @@ const OrderDetail = () => {
               </div>
               <Text type="secondary">北京市朝阳区建国路88号SOHO现代城A座1001室</Text>
             </div>
-          </div>
+          </Card>
 
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
-              <ShoppingOutlined style={{ marginRight: 8 }} />
-              商品清单
-            </Title>
-
+          <Card title="商品清单">
             <div style={{ display: 'flex', padding: '10px 0', borderBottom: '2px solid #e8e8e8' }}>
               <div style={{ flex: 1 }}>商品</div>
               <div style={{ width: 100, textAlign: 'center' }}>单价</div>
@@ -256,11 +191,13 @@ const OrderDetail = () => {
             </div>
 
             {order.items.map((item) => (
-              <div key={item.item_id} className="jd-checkout-item">
-                <div className="jd-checkout-image">
-                  <ShoppingOutlined style={{ fontSize: 24, color: '#999' }} />
+              <div key={item.item_id} style={{ display: 'flex', padding: '12px 0', borderBottom: '1px solid #f0f0f0', alignItems: 'center' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                  <div style={{ width: 60, height: 60, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                    <ShoppingOutlined style={{ fontSize: 24, color: '#999' }} />
+                  </div>
+                  <span>{item.goods_name || `商品 #${item.goods_id}`}</span>
                 </div>
-                <div className="jd-checkout-name">{item.goods_name || `商品 #${item.goods_id}`}</div>
                 <div style={{ width: 100, textAlign: 'center' }}>
                   ¥{item.price.toFixed(2)}
                 </div>
@@ -272,44 +209,33 @@ const OrderDetail = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </Card>
         </Col>
 
         <Col xs={24} md={8}>
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
-              订单信息
-            </Title>
-
-            <div className="jd-checkout-summary">
-              <div className="jd-summary-row">
-                <span className="jd-summary-label">下单时间</span>
-                <span className="jd-summary-value">
-                  {new Date(order.create_time).toLocaleString()}
-                </span>
-              </div>
-              <div className="jd-summary-row">
-                <span className="jd-summary-label">商品金额</span>
-                <span className="jd-summary-value">¥{order.total_price.toFixed(2)}</span>
-              </div>
-              <div className="jd-summary-row">
-                <span className="jd-summary-label">运费</span>
-                <span className="jd-summary-value">
-                  <Tag color="green">免运费</Tag>
-                </span>
-              </div>
-              <Divider style={{ margin: '10px 0' }} />
-              <div className="jd-summary-row total">
-                <span className="jd-summary-label">应付总额</span>
-                <span className="jd-summary-value">¥{order.total_price.toFixed(2)}</span>
-              </div>
+          <Card title="订单信息">
+            <div style={{ marginBottom: 12 }}>
+              <Text type="secondary">下单时间：</Text>
+              <Text>{new Date(order.create_time).toLocaleString()}</Text>
             </div>
-          </div>
+            <div style={{ marginBottom: 12 }}>
+              <Text type="secondary">商品金额：</Text>
+              <Text>¥{order.total_price.toFixed(2)}</Text>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <Text type="secondary">运费：</Text>
+              <Tag color="green">免运费</Tag>
+            </div>
+            <Divider />
+            <div style={{ textAlign: 'right' }}>
+              <Text type="secondary">应付总额：</Text>
+              <Text style={{ fontSize: 20, color: '#e4393c', fontWeight: 'bold' }}>
+                ¥{order.total_price.toFixed(2)}
+              </Text>
+            </div>
+          </Card>
 
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
-              服务保障
-            </Title>
+          <Card title="服务保障" style={{ marginTop: 20 }}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
@@ -324,7 +250,7 @@ const OrderDetail = () => {
                 <Text>极速配送</Text>
               </div>
             </Space>
-          </div>
+          </Card>
         </Col>
       </Row>
     </div>

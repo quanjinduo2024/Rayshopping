@@ -35,10 +35,17 @@ const OrderList = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
+      case 'pending_payment':
         return 'orange'
+      case 'pending_shipment':
+        return 'blue'
+      case 'pending_receipt':
+        return 'cyan'
       case 'completed':
         return 'green'
+      case 'cancelled':
+      case 'refunded':
+        return 'default'
       default:
         return 'default'
     }
@@ -46,10 +53,18 @@ const OrderList = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return '待处理'
+      case 'pending_payment':
+        return '待付款'
+      case 'pending_shipment':
+        return '待发货'
+      case 'pending_receipt':
+        return '待收货'
       case 'completed':
         return '已完成'
+      case 'cancelled':
+        return '已取消'
+      case 'refunded':
+        return '已退款'
       default:
         return status
     }
