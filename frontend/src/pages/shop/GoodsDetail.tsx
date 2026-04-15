@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Row, Col, Typography, Button, Spin, message, InputNumber } from 'antd'
-import { ShoppingOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Row, Col, Typography, Button, Spin, message, InputNumber, Tabs, Card, Space, Tag, Divider } from 'antd'
+import { ShoppingOutlined, ShoppingCartOutlined, CheckCircleOutlined, TruckOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import type { RootState } from '@/store'
 import { shopService } from '@/services/shopService'
 import type { Goods } from '@/types/goods'
 
-const { Title, Paragraph, Text } = Typography
+const { Title, Text, Paragraph } = Typography
 
 const GoodsDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +16,7 @@ const GoodsDetail = () => {
   const [goods, setGoods] = useState<Goods | null>(null)
   const [loading, setLoading] = useState(false)
   const [quantity, setQuantity] = useState(1)
+  const [relatedGoods, setRelatedGoods] = useState<Goods[]>([])
 
   const fetchGoodsDetail = async () => {
     if (!id) return
@@ -23,6 +24,9 @@ const GoodsDetail = () => {
     try {
       const data = await shopService.getGoodsDetail(parseInt(id))
       setGoods(data)
+      // 获取相关推荐商品
+      const listData = await shopService.getGoodsList(1, 4)
+      setRelatedGoods(listData.items.filter((item: Goods) => item.goods_id !== parseInt(id)))
     } catch (err) {
       message.error('获取商品详情失败')
     } finally {
@@ -69,73 +73,213 @@ const GoodsDetail = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px 0' }}>
+      <div style={{ textAlign: 'center', padding: '100px 0', background: '#fff' }}>
         <Spin size="large" />
       </div>
     )
   }
 
   if (!goods) {
-    return <div>商品不存在</div>
+    return (
+      <div style={{ padding: '100px 0', textAlign: 'center', background: '#fff' }}>
+        <Title level={4}>商品不存在</Title>
+        <Link to="/goods">
+          <Button type="primary">返回商品列表</Button>
+        </Link>
+      </div>
+    )
   }
 
   return (
-    <div>
-      <Card>
-        <Row gutter={32}>
-          <Col xs={24} md={10}>
-            <div
-              style={{
-                height: 400,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#f5f5f5',
-                borderRadius: 8,
-              }}
-            >
-              <ShoppingOutlined style={{ fontSize: 80, color: '#999' }} />
-            </div>
-          </Col>
-          <Col xs={24} md={14}>
-            <Title level={2}>{goods.name}</Title>
-            <Title level={1} type="danger" style={{ margin: '24px 0' }}>
-              ¥{goods.price.toFixed(2)}
-            </Title>
-            <Paragraph style={{ fontSize: 16 }}>{goods.intro || '暂无描述'}</Paragraph>
-            <Text type="secondary">库存：{goods.stock} 件</Text>
-            <div style={{ marginTop: 32 }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-                <span style={{ marginRight: 16 }}>数量：</span>
-                <InputNumber
-                  min={1}
-                  max={goods.stock}
-                  value={quantity}
-                  onChange={(value) => setQuantity(value || 1)}
-                  size="large"
-                />
+    <div className="jd-page-content" style={{ padding: '20px 50px' }}>
+      <Row gutter={20}>
+        {/* 主内容区 */}
+        <Col xs={24} md={18}>
+          {/* 商品信息卡片 */}
+          <div className="jd-goods-detail">
+            <Row gutter={0}>
+              {/* 左侧图片区 */}
+              <Col xs={24} md={10}>
+                <div className="jd-goods-gallery">
+                  <div className="jd-goods-image">
+                    <ShoppingOutlined style={{ fontSize: 120, color: '#ddd' }} />
+                  </div>
+                </div>
+              </Col>
+
+              {/* 右侧信息区 */}
+              <Col xs={24} md={14} className="jd-goods-info">
+                <Title level={4} className="jd-goods-title">
+                  {goods.name}
+                </Title>
+
+                {goods.intro && (
+                  <Paragraph className="jd-goods-summary">
+                    {goods.intro}
+                  </Paragraph>
+                )}
+
+                {/* 价格区域 */}
+                <div className="jd-price-wrap">
+                  <Space align="baseline">
+                    <span className="jd-price-label">京东价</span>
+                    <span className="jd-price">
+                      <span className="jd-price-symbol">¥</span>
+                      {goods.price.toFixed(2)}
+                    </span>
+                  </Space>
+                </div>
+
+                {/* 库存配送 */}
+                <div className="jd-stock-wrap">
+                  <Space>
+                    <span className="jd-stock-label">库存</span>
+                    <Text>{goods.stock} 件</Text>
+                    <Divider type="vertical" />
+                    <span className="jd-stock-label">配送至</span>
+                    <Tag color="blue">北京朝阳区</Tag>
+                    <Divider type="vertical" />
+                    <Text type="secondary">现货</Text>
+                  </Space>
+                </div>
+
+                {/* 数量选择 */}
+                <div className="jd-quantity-wrap">
+                  <span className="jd-quantity-label">数量</span>
+                  <InputNumber
+                    min={1}
+                    max={goods.stock}
+                    value={quantity}
+                    onChange={(value) => setQuantity(value || 1)}
+                    size="large"
+                    style={{ width: 120 }}
+                  />
+                  <Text type="secondary" style={{ marginLeft: 10 }}>
+                    （库存 {goods.stock} 件）
+                  </Text>
+                </div>
+
+                {/* 操作按钮 */}
+                <Space size="large" style={{ marginTop: 30 }}>
+                  <Button
+                    size="large"
+                    icon={<ShoppingCartOutlined />}
+                    className="jd-btn-cart"
+                    onClick={handleAddToCart}
+                  >
+                    加入购物车
+                  </Button>
+                  <Button
+                    type="primary"
+                    size="large"
+                    className="jd-btn-buy"
+                    onClick={handleBuyNow}
+                  >
+                    立即购买
+                  </Button>
+                </Space>
+
+                {/* 服务保障 */}
+                <div className="jd-service-wrap">
+                  <Space wrap>
+                    <span className="jd-service-item">
+                      <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 4 }} />
+                      正品保障
+                    </span>
+                    <span className="jd-service-item">
+                      <ReloadOutlined style={{ color: '#1890ff', marginRight: 4 }} />
+                      7天无理由
+                    </span>
+                    <span className="jd-service-item">
+                      <TruckOutlined style={{ color: '#faad14', marginRight: 4 }} />
+                      极速配送
+                    </span>
+                  </Space>
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          {/* 商品详情 Tab */}
+          <div className="jd-detail-tab">
+            <Tabs
+              defaultActiveKey="intro"
+              items={[
+                {
+                  key: 'intro',
+                  label: '商品介绍',
+                  children: (
+                    <div className="jd-detail-content">
+                      <Title level={4}>商品详情</Title>
+                      <Paragraph>
+                        这里是商品的详细介绍内容，包含商品的规格参数、使用说明、包装清单等信息。
+                      </Paragraph>
+                      <Paragraph>
+                        （图文详情展示区域）
+                      </Paragraph>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'spec',
+                  label: '规格参数',
+                  children: (
+                    <div className="jd-detail-content">
+                      <Title level={4}>规格参数</Title>
+                      <Paragraph>商品规格参数信息...</Paragraph>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'package',
+                  label: '包装清单',
+                  children: (
+                    <div className="jd-detail-content">
+                      <Title level={4}>包装清单</Title>
+                      <Paragraph>商品包装清单信息...</Paragraph>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </Col>
+
+        {/* 侧边推荐 */}
+        <Col xs={24} md={6}>
+          <Card title="看了又看" style={{ marginBottom: 20 }}>
+            {relatedGoods.map((item) => (
+              <div key={item.goods_id} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid #f0f0f0' }}>
+                <Link to={`/goods/${item.goods_id}`} style={{ color: 'inherit' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div
+                      style={{
+                        width: 60,
+                        height: 60,
+                        background: '#f5f5f5',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: 12,
+                      }}
+                    >
+                      <ShoppingOutlined style={{ color: '#999' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, color: '#333', marginBottom: 4 }}>
+                        {item.name}
+                      </div>
+                      <div style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+                        ¥{item.price.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               </div>
-              <div style={{ display: 'flex', gap: 16 }}>
-                <Button
-                  type="default"
-                  size="large"
-                  icon={<ShoppingCartOutlined />}
-                  onClick={handleAddToCart}
-                >
-                  加入购物车
-                </Button>
-                <Button
-                  type="primary"
-                  size="large"
-                  onClick={handleBuyNow}
-                >
-                  立即购买
-                </Button>
-              </div>
-            </div>
-          </Col>
-        </Row>
-      </Card>
+            ))}
+          </Card>
+        </Col>
+      </Row>
     </div>
   )
 }

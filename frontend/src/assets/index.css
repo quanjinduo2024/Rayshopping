@@ -71,3 +71,520 @@ code {
   border-radius: 4px;
   overflow: hidden;
 }
+
+/* 京东详情页样式 */
+.jd-goods-detail {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.jd-goods-gallery {
+  width: 400px;
+}
+
+.jd-goods-image {
+  width: 400px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+}
+
+.jd-goods-info {
+  flex: 1;
+  padding-left: 30px;
+}
+
+.jd-goods-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.jd-goods-summary {
+  color: #e4393c;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.jd-price-wrap {
+  background: #f5f5f5;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.jd-price-label {
+  color: #666;
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+.jd-price {
+  color: #e4393c;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.jd-price-symbol {
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.jd-stock-wrap {
+  margin-bottom: 15px;
+}
+
+.jd-stock-label {
+  color: #666;
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+.jd-quantity-wrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.jd-quantity-label {
+  color: #666;
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+.jd-btn-cart {
+  background: #fff;
+  border: 1px solid #1890ff;
+  color: #1890ff;
+  height: 46px;
+  line-height: 44px;
+  padding: 0 20px;
+  font-size: 16px;
+  border-radius: 2px;
+}
+
+.jd-btn-cart:hover {
+  background: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.jd-btn-buy {
+  background: #1890ff;
+  border: 1px solid #1890ff;
+  color: #fff;
+  height: 46px;
+  line-height: 44px;
+  padding: 0 30px;
+  font-size: 16px;
+  border-radius: 2px;
+}
+
+.jd-btn-buy:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+  color: #fff;
+}
+
+.jd-service-wrap {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dotted #e8e8e8;
+}
+
+.jd-service-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+  color: #666;
+  font-size: 12px;
+}
+
+.jd-detail-tab {
+  background: #fff;
+  margin-top: 20px;
+}
+
+.jd-detail-content {
+  padding: 30px;
+  min-height: 300px;
+}
+
+/* 京东购物车样式 */
+.jd-cart-header {
+  background: #fff;
+  padding: 10px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.jd-cart-item {
+  background: #fff;
+  padding: 20px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.jd-cart-item:hover {
+  background: #fffef0;
+}
+
+.jd-cart-image {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  margin-right: 20px;
+}
+
+.jd-cart-title {
+  font-size: 14px;
+  color: #333;
+}
+
+.jd-cart-price {
+  font-size: 14px;
+  color: #e4393c;
+  font-weight: bold;
+}
+
+.jd-cart-total {
+  font-size: 16px;
+  color: #e4393c;
+  font-weight: bold;
+}
+
+.jd-cart-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  padding: 0 50px;
+  z-index: 100;
+}
+
+.jd-cart-footer-left {
+  display: flex;
+  align-items: center;
+}
+
+.jd-cart-footer-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.jd-selected-count {
+  color: #666;
+  margin-right: 20px;
+}
+
+.jd-selected-count span {
+  color: #1890ff;
+  font-weight: bold;
+}
+
+.jd-total-price-label {
+  color: #666;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.jd-total-price {
+  color: #e4393c;
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+.jd-btn-checkout {
+  background: #1890ff;
+  border: none;
+  color: #fff;
+  height: 40px;
+  padding: 0 40px;
+  font-size: 16px;
+  border-radius: 2px;
+}
+
+.jd-btn-checkout:hover {
+  background: #40a9ff;
+  color: #fff;
+}
+
+.jd-btn-checkout:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+/* 京东结算页样式 */
+.jd-checkout-section {
+  background: #fff;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.jd-checkout-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #1890ff;
+  display: inline-block;
+}
+
+.jd-address-item {
+  border: 1px solid #e8e8e8;
+  padding: 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.jd-address-item:hover {
+  border-color: #1890ff;
+}
+
+.jd-address-item.selected {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.jd-address-name {
+  font-weight: bold;
+  color: #333;
+  margin-right: 15px;
+}
+
+.jd-address-phone {
+  color: #666;
+}
+
+.jd-address-detail {
+  color: #666;
+  margin-top: 5px;
+}
+
+.jd-checkout-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.jd-checkout-image {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  margin-right: 15px;
+}
+
+.jd-checkout-name {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.jd-checkout-price {
+  width: 100px;
+  text-align: right;
+  color: #333;
+}
+
+.jd-checkout-quantity {
+  width: 80px;
+  text-align: center;
+  color: #666;
+}
+
+.jd-checkout-total {
+  width: 120px;
+  text-align: right;
+  color: #e4393c;
+  font-weight: bold;
+}
+
+.jd-checkout-summary {
+  background: #f5f5f5;
+  padding: 20px;
+  text-align: right;
+}
+
+.jd-summary-row {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.jd-summary-label {
+  display: inline-block;
+  width: 80px;
+  text-align: left;
+}
+
+.jd-summary-value {
+  display: inline-block;
+  min-width: 100px;
+}
+
+.jd-summary-row.total {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.jd-summary-row.total .jd-summary-label {
+  font-size: 16px;
+  color: #333;
+}
+
+.jd-summary-row.total .jd-summary-value {
+  font-size: 20px;
+  color: #e4393c;
+  font-weight: bold;
+}
+
+.jd-checkout-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 50px;
+  z-index: 100;
+}
+
+.jd-btn-submit-order {
+  background: #1890ff;
+  border: none;
+  color: #fff;
+  height: 46px;
+  padding: 0 50px;
+  font-size: 18px;
+  border-radius: 2px;
+}
+
+.jd-btn-submit-order:hover {
+  background: #40a9ff;
+  color: #fff;
+}
+
+/* 京东订单页样式 */
+.jd-order-card {
+  background: #fff;
+  margin-bottom: 20px;
+}
+
+.jd-order-header {
+  background: #f5f5f5;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jd-order-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.jd-order-id {
+  color: #333;
+  font-weight: bold;
+}
+
+.jd-order-time {
+  color: #999;
+  font-size: 12px;
+}
+
+.jd-order-status {
+  font-size: 14px;
+}
+
+.jd-order-body {
+  padding: 20px;
+}
+
+.jd-order-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.jd-order-image {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  margin-right: 15px;
+}
+
+.jd-order-name {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.jd-order-price {
+  width: 100px;
+  text-align: right;
+  color: #333;
+}
+
+.jd-order-quantity {
+  width: 80px;
+  text-align: center;
+  color: #666;
+}
+
+.jd-order-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jd-order-total-label {
+  color: #666;
+}
+
+.jd-order-total {
+  color: #e4393c;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.jd-order-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.jd-page-content {
+  padding-bottom: 80px;
+}
