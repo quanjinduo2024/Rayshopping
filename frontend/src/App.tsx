@@ -13,13 +13,13 @@ import OrderList from './pages/shop/OrderList'
 import OrderDetail from './pages/shop/OrderDetail'
 import PrivateRoute from './components/common/PrivateRoute'
 
-const { Content, Footer } = Layout
+const { Content } = Layout
 
 function App() {
   return (
-    <Layout className="min-h-screen">
+    <Layout className="min-h-screen" style={{ background: '#f5f5f5' }}>
       <Header />
-      <Content className="p-6" style={{ minHeight: 'calc(100vh - 64px - 70px)' }}>
+      <Content style={{ minHeight: 'calc(100vh - 150px)' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -68,7 +68,6 @@ function App() {
           />
         </Routes>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>Rayshopping ©2024</Footer>
     </Layout>
   )
 }
