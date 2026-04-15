@@ -23,10 +23,16 @@ const GoodsDetail = () => {
     setLoading(true)
     try {
       const data = await shopService.getGoodsDetail(parseInt(id))
-      setGoods(data)
+      // 转换 price 为数字类型
+      const goodsData = { ...data, price: Number(data.price) }
+      setGoods(goodsData)
       // 获取相关推荐商品
       const listData = await shopService.getGoodsList(1, 4)
-      setRelatedGoods(listData.items.filter((item: Goods) => item.goods_id !== parseInt(id)))
+      // 同样转换相关商品的 price
+      const relatedItems = listData.items
+        .filter((item: Goods) => item.goods_id !== parseInt(id))
+        .map((item: Goods) => ({ ...item, price: Number(item.price) }))
+      setRelatedGoods(relatedItems)
     } catch (err) {
       message.error('获取商品详情失败')
     } finally {

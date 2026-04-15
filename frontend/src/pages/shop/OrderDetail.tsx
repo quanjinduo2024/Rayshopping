@@ -19,7 +19,16 @@ const OrderDetail = () => {
     setLoading(true)
     try {
       const data = await shopService.getOrderDetail(parseInt(id))
-      setOrder(data)
+      // 转换价格字段为数字类型
+      const orderData = {
+        ...data,
+        total_price: Number(data.total_price),
+        items: data.items.map((item: any) => ({
+          ...item,
+          price: Number(item.price),
+        })),
+      }
+      setOrder(orderData)
     } catch (err) {
       message.error('获取订单详情失败')
     } finally {

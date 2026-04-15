@@ -52,8 +52,13 @@ const Checkout = () => {
     setLoading(true)
     try {
       const response = await shopService.getCartList()
-      // 只显示已选中的商品
-      const checkedItems = response.items.filter((item: CartItem) => item.checked)
+      // 只显示已选中的商品，并转换 price 为数字
+      const checkedItems = response.items
+        .filter((item: CartItem) => item.checked)
+        .map((item: CartItem) => ({
+          ...item,
+          price: item.price ? Number(item.price) : 0,
+        }))
       if (checkedItems.length === 0) {
         message.warning('请先选择要结算的商品')
         navigate('/cart')

@@ -16,7 +16,12 @@ const OrderList = () => {
     setLoading(true)
     try {
       const response = await shopService.getOrderList()
-      setOrders(response.items)
+      // 转换 total_price 为数字类型
+      const ordersWithNumericPrice = response.items.map((order: Order) => ({
+        ...order,
+        total_price: Number(order.total_price),
+      }))
+      setOrders(ordersWithNumericPrice)
     } catch (err) {
       console.error('获取订单列表失败', err)
     } finally {
