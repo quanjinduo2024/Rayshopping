@@ -42,6 +42,16 @@ export interface UpdateUserRequest {
   phone?: string
 }
 
+export interface UpdatePasswordRequest {
+  current_password: string
+  new_password: string
+}
+
+export interface UpdatePhoneRequest {
+  phone: string
+  code: string
+}
+
 export interface AuthResponse {
   access_token: string
   token_type: string

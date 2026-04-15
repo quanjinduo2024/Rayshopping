@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { User, Address, AddressRequest, LoginRequest, RegisterRequest, UpdateUserRequest, AuthResponse } from '@/types/user'
+import type { User, Address, AddressRequest, LoginRequest, RegisterRequest, UpdateUserRequest, UpdatePasswordRequest, UpdatePhoneRequest, AuthResponse } from '@/types/user'
 
 export const userService = {
   login: (data: LoginRequest): Promise<AuthResponse> => {
@@ -37,5 +37,22 @@ export const userService = {
 
   setDefaultAddress: (addressId: number): Promise<void> => {
     return request.put(`/api/v1/user/address/${addressId}/default`)
+  },
+
+  // 账户安全相关 API
+  updatePassword: (data: UpdatePasswordRequest): Promise<void> => {
+    return request.put('/api/v1/user/password', data)
+  },
+
+  sendVerificationCode: (phone: string): Promise<void> => {
+    return request.post('/api/v1/user/send-code', { phone })
+  },
+
+  updatePhone: (data: UpdatePhoneRequest): Promise<void> => {
+    return request.put('/api/v1/user/phone', data)
+  },
+
+  verifyRealName: (data: any): Promise<void> => {
+    return request.post('/api/v1/user/verify-realname', data)
   },
 }
