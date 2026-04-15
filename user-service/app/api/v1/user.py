@@ -50,7 +50,8 @@ def update_user_info(
     db: Session = Depends(get_db),
 ):
     """更新用户信息"""
-    return UserService.update_user(db, current_user_id, user_data)
+    user = UserService.update_user(db, current_user_id, user_data)
+    return UserResponse.model_validate(user)
 
 
 @router.get("/exist", response_model=UserExistResponse)
