@@ -43,6 +43,9 @@ dist/
 dist-ssr/
 *.local
 
+# 本地开发配置（每个人本地不同，不提交）
+frontend/vite.config.ts
+
 # Database
 *.db
 *.sqlite
