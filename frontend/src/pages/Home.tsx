@@ -1,6 +1,8 @@
-import { Link } from 'react-router-dom'
-import { Layout, Row, Col, Card, Carousel, Typography, Space, Button, List, Tag } from 'antd'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Layout, Row, Col, Card, Carousel, Typography, Space, Button, List, Tag, Spin } from 'antd'
 import { ShoppingOutlined, RightOutlined, FireOutlined, StarOutlined, UserOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import { shopService } from '@/services/shopService'
 import type { Goods } from '@/types/goods'
 
 const { Content, Sider } = Layout
@@ -8,98 +10,53 @@ const { Title, Paragraph, Text } = Typography
 const { Meta } = Card
 
 const Home = () => {
-  // 模拟商品数据
-  const hotProducts: Goods[] = [
-    {
-      goods_id: 1,
-      name: 'iPhone 15 Pro Max 256GB 原色钛金属',
-      price: 9999,
-      intro: 'A17 Pro芯片，钛金属设计',
-      image_url: '',
-      stock: 100,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 2,
-      name: 'MacBook Pro 14英寸 M3芯片',
-      price: 14999,
-      intro: 'M3芯片，Liquid Retina XDR显示屏',
-      image_url: '',
-      stock: 50,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 3,
-      name: 'AirPods Pro 2代 USB-C',
-      price: 1899,
-      intro: '主动降噪，自适应通透模式',
-      image_url: '',
-      stock: 200,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 4,
-      name: 'iPad Air 10.9英寸 M2芯片',
-      price: 4799,
-      intro: 'M2芯片，10.9英寸Liquid Retina显示屏',
-      image_url: '',
-      stock: 80,
-      create_time: new Date().toISOString(),
-    },
-  ]
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [allGoods, setAllGoods] = useState<Goods[]>([])
+  const [hotProducts, setHotProducts] = useState<Goods[]>([])
+  const [newProducts, setNewProducts] = useState<Goods[]>([])
 
-  const newProducts: Goods[] = [
-    {
-      goods_id: 5,
-      name: 'Apple Watch Series 9',
-      price: 2999,
-      intro: '健康监测，运动追踪',
-      image_url: '',
-      stock: 120,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 6,
-      name: 'Magic Keyboard 触控板',
-      price: 899,
-      intro: '无线蓝牙键盘，背光按键',
-      image_url: '',
-      stock: 150,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 7,
-      name: 'HomePod mini 智能音箱',
-      price: 749,
-      intro: 'Siri智能助手，家庭中枢',
-      image_url: '',
-      stock: 90,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 8,
-      name: 'AirTag 4件装',
-      price: 779,
-      intro: '物品追踪器，查找我的',
-      image_url: '',
-      stock: 200,
-      create_time: new Date().toISOString(),
-    },
-  ]
+  // 获取商品数据
+  const fetchGoods = async () => {
+    setLoading(true)
+    try {
+      const response = await shopService.getGoodsList(1, 100)
+      // 转换 price 为数字类型
+      const goodsList = response.items.map((item: Goods) => ({
+        ...item,
+        price: Number(item.price),
+      }))
+      setAllGoods(goodsList)
+
+      // 随机打乱商品
+      const shuffled = [...goodsList].sort(() => Math.random() - 0.5)
+      setHotProducts(shuffled.slice(0, 4))
+      setNewProducts(shuffled.slice(4, 8))
+    } catch (err) {
+      console.error('获取商品列表失败', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchGoods()
+  }, [])
 
   // 左侧分类菜单
   const categories = [
     { id: 1, name: '手机数码', icon: '📱' },
     { id: 2, name: '电脑办公', icon: '💻' },
     { id: 3, name: '家用电器', icon: '🏠' },
-    { id: 4, name: '智能穿戴', icon: '⌚' },
-    { id: 5, name: '智能家居', icon: '🏡' },
-    { id: 6, name: '配件周边', icon: '🎧' },
-    { id: 7, name: '食品生鲜', icon: '🍎' },
-    { id: 8, name: '美妆个护', icon: '💄' },
-    { id: 9, name: '母婴玩具', icon: '🧸' },
-    { id: 10, name: '图书文具', icon: '📚' },
+    { id: 4, name: '服饰鞋包', icon: '👔' },
+    { id: 5, name: '美妆个护', icon: '💄' },
+    { id: 6, name: '食品生鲜', icon: '🍎' },
   ]
+
+  // 分类点击跳转到商品列表
+  const handleCategoryClick = () => {
+    navigate('/goods')
+  }
 
   // 轮播图数据
   const carouselImages = [
@@ -128,6 +85,7 @@ const Home = () => {
                     cursor: 'pointer',
                     borderBottom: '1px solid #f0f0f0',
                   }}
+                  onClick={handleCategoryClick}
                 >
                   <span style={{ marginRight: '10px', fontSize: '18px' }}>{item.icon}</span>
                   <span>{item.name}</span>
@@ -242,121 +200,139 @@ const Home = () => {
 
       {/* 热门商品 */}
       <div style={{ padding: '20px 50px' }}>
-        <Card
-          title={
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <FireOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
-              <span>热销爆款</span>
-              <Link to="/goods" style={{ marginLeft: 'auto', fontSize: '14px' }}>
-                查看更多 <RightOutlined />
-              </Link>
-            </div>
-          }
-          style={{ marginBottom: '20px' }}
-        >
-          <Row gutter={[20, 20]}>
-            {hotProducts.map((item) => (
-              <Col xs={24} sm={12} md={6} key={item.goods_id}>
-                <Link to={`/goods/${item.goods_id}`} style={{ color: 'inherit' }}>
-                  <Card
-                    hoverable
-                    className="jd-product-card"
-                    cover={
-                      <div
-                        style={{
-                          height: '180px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: '#f5f5f5',
-                          fontSize: '60px',
-                        }}
-                      >
-                        📱
-                      </div>
-                    }
-                  >
-                    <Meta
-                      title={
-                        <div className="product-name" style={{ height: '44px', overflow: 'hidden' }}>
-                          {item.name}
-                        </div>
-                      }
-                      description={
-                        <div>
-                          <div className="jd-price" style={{ marginTop: '8px' }}>
-                            ¥{item.price.toFixed(2)}
-                          </div>
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            销量 {Math.floor(Math.random() * 10000)}+
-                          </Text>
-                        </div>
-                      }
-                    />
-                  </Card>
+        <Spin spinning={loading}>
+          <Card
+            title={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <FireOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
+                <span>热销爆款</span>
+                <Link to="/goods" style={{ marginLeft: 'auto', fontSize: '14px' }}>
+                  查看更多 <RightOutlined />
                 </Link>
-              </Col>
-            ))}
-          </Row>
-        </Card>
+              </div>
+            }
+            style={{ marginBottom: '20px' }}
+          >
+            <Row gutter={[20, 20]}>
+              {hotProducts.map((item) => (
+                <Col xs={24} sm={12} md={6} key={item.goods_id}>
+                  <Link to={`/goods/${item.goods_id}`} style={{ color: 'inherit' }}>
+                    <Card
+                      hoverable
+                      className="jd-product-card"
+                      cover={
+                        <div
+                          style={{
+                            height: '180px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#f5f5f5',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: '60px' }}>📱</span>
+                          )}
+                        </div>
+                      }
+                    >
+                      <Meta
+                        title={
+                          <div className="product-name" style={{ height: '44px', overflow: 'hidden' }}>
+                            {item.name}
+                          </div>
+                        }
+                        description={
+                          <div>
+                            <div className="jd-price" style={{ marginTop: '8px' }}>
+                              ¥{item.price.toFixed(2)}
+                            </div>
+                            <Text type="secondary" style={{ fontSize: '12px' }}>
+                              销量 {Math.floor(Math.random() * 10000)}+
+                            </Text>
+                          </div>
+                        }
+                      />
+                    </Card>
+                  </Link>
+                </Col>
+              ))}
+            </Row>
+          </Card>
 
-        {/* 新品上市 */}
-        <Card
-          title={
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <StarOutlined style={{ color: '#1890ff', marginRight: '8px' }} />
-              <span>新品上市</span>
-              <Link to="/goods" style={{ marginLeft: 'auto', fontSize: '14px' }}>
-                查看更多 <RightOutlined />
-              </Link>
-            </div>
-          }
-        >
-          <Row gutter={[20, 20]}>
-            {newProducts.map((item) => (
-              <Col xs={24} sm={12} md={6} key={item.goods_id}>
-                <Link to={`/goods/${item.goods_id}`} style={{ color: 'inherit' }}>
-                  <Card
-                    hoverable
-                    className="jd-product-card"
-                    cover={
-                      <div
-                        style={{
-                          height: '180px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: '#f5f5f5',
-                          fontSize: '60px',
-                        }}
-                      >
-                        ⌚
-                      </div>
-                    }
-                  >
-                    <Meta
-                      title={
-                        <div className="product-name" style={{ height: '44px', overflow: 'hidden' }}>
-                          {item.name}
-                        </div>
-                      }
-                      description={
-                        <div>
-                          <div className="jd-price" style={{ marginTop: '8px' }}>
-                            ¥{item.price.toFixed(2)}
-                          </div>
-                          <Tag color="blue" style={{ fontSize: '12px' }}>
-                            新品
-                          </Tag>
-                        </div>
-                      }
-                    />
-                  </Card>
+          {/* 新品上市 */}
+          <Card
+            title={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <StarOutlined style={{ color: '#1890ff', marginRight: '8px' }} />
+                <span>新品上市</span>
+                <Link to="/goods" style={{ marginLeft: 'auto', fontSize: '14px' }}>
+                  查看更多 <RightOutlined />
                 </Link>
-              </Col>
-            ))}
-          </Row>
-        </Card>
+              </div>
+            }
+          >
+            <Row gutter={[20, 20]}>
+              {newProducts.map((item) => (
+                <Col xs={24} sm={12} md={6} key={item.goods_id}>
+                  <Link to={`/goods/${item.goods_id}`} style={{ color: 'inherit' }}>
+                    <Card
+                      hoverable
+                      className="jd-product-card"
+                      cover={
+                        <div
+                          style={{
+                            height: '180px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#f5f5f5',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: '60px' }}>⌚</span>
+                          )}
+                        </div>
+                      }
+                    >
+                      <Meta
+                        title={
+                          <div className="product-name" style={{ height: '44px', overflow: 'hidden' }}>
+                            {item.name}
+                          </div>
+                        }
+                        description={
+                          <div>
+                            <div className="jd-price" style={{ marginTop: '8px' }}>
+                              ¥{item.price.toFixed(2)}
+                            </div>
+                            <Tag color="blue" style={{ fontSize: '12px' }}>
+                              新品
+                            </Tag>
+                          </div>
+                        }
+                      />
+                    </Card>
+                  </Link>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+        </Spin>
       </div>
 
       {/* 底部服务 */}
