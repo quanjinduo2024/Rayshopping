@@ -3,7 +3,9 @@ export interface Goods {
   name: string
   price: number
   intro?: string
+  description?: string
   image_url?: string
+  category?: string
   stock: number
   create_time: string
 }

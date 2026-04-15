@@ -18,21 +18,27 @@ export const fetchCartList = createAsyncThunk<CartItem[], void>(
   'cart/fetchCartList',
   async () => {
     const response = await shopService.getCartList()
-    return response.items
+    // 转换 price 为数字类型
+    return response.items.map((item: CartItem) => ({
+      ...item,
+      price: item.price ? Number(item.price) : 0,
+    }))
   }
 )
 
 export const addToCart = createAsyncThunk<CartItem, AddCartRequest>(
   'cart/addToCart',
   async (data) => {
-    return await shopService.addToCart(data)
+    const result = await shopService.addToCart(data)
+    return { ...result, price: result.price ? Number(result.price) : 0 }
   }
 )
 
 export const updateCartItem = createAsyncThunk<CartItem, UpdateCartRequest>(
   'cart/updateCartItem',
   async (data) => {
-    return await shopService.updateCart(data)
+    const result = await shopService.updateCart(data)
+    return { ...result, price: result.price ? Number(result.price) : 0 }
   }
 )
 

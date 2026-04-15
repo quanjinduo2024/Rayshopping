@@ -20,127 +20,27 @@ const GoodsList = () => {
   const [pageSize] = useState(20)
   const [sortBy, setSortBy] = useState('default')
 
-  // 模拟商品数据
-  const mockGoods: Goods[] = [
-    {
-      goods_id: 1,
-      name: 'iPhone 15 Pro Max 256GB 原色钛金属',
-      price: 9999,
-      intro: 'A17 Pro芯片，钛金属设计，专业级摄像系统',
-      image_url: '',
-      stock: 100,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 2,
-      name: 'iPhone 15 Pro 128GB 黑色钛金属',
-      price: 7999,
-      intro: 'A17 Pro芯片，钛金属设计',
-      image_url: '',
-      stock: 150,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 3,
-      name: 'MacBook Pro 14英寸 M3芯片',
-      price: 14999,
-      intro: 'M3芯片，Liquid Retina XDR显示屏，18小时续航',
-      image_url: '',
-      stock: 50,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 4,
-      name: 'MacBook Air 15英寸 M2芯片',
-      price: 10499,
-      intro: 'M2芯片，15.3英寸显示屏，18小时续航',
-      image_url: '',
-      stock: 80,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 5,
-      name: 'AirPods Pro 2代 USB-C',
-      price: 1899,
-      intro: '主动降噪，自适应通透模式，个性化空间音频',
-      image_url: '',
-      stock: 200,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 6,
-      name: 'AirPods 3代',
-      price: 1399,
-      intro: '空间音频，抗汗防水，MagSafe充电盒',
-      image_url: '',
-      stock: 250,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 7,
-      name: 'iPad Air 10.9英寸 M2芯片',
-      price: 4799,
-      intro: 'M2芯片，10.9英寸Liquid Retina显示屏',
-      image_url: '',
-      stock: 80,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 8,
-      name: 'iPad Pro 12.9英寸 M2芯片',
-      price: 9299,
-      intro: 'M2芯片，12.9英寸Liquid Retina XDR显示屏',
-      image_url: '',
-      stock: 60,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 9,
-      name: 'Apple Watch Series 9',
-      price: 2999,
-      intro: '健康监测，运动追踪，车祸检测',
-      image_url: '',
-      stock: 120,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 10,
-      name: 'Apple Watch Ultra 2',
-      price: 6499,
-      intro: '极限运动，精密双频GPS，100米防水',
-      image_url: '',
-      stock: 40,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 11,
-      name: 'Magic Keyboard 触控板',
-      price: 899,
-      intro: '无线蓝牙键盘，背光按键，触控板设计',
-      image_url: '',
-      stock: 150,
-      create_time: new Date().toISOString(),
-    },
-    {
-      goods_id: 12,
-      name: 'HomePod mini 智能音箱',
-      price: 749,
-      intro: 'Siri智能助手，家庭中枢，智能家居控制',
-      image_url: '',
-      stock: 90,
-      create_time: new Date().toISOString(),
-    },
-  ]
+  const fetchGoodsList = async () => {
+    setLoading(true)
+    try {
+      const response = await shopService.getGoodsList(page, pageSize)
+      // 转换 price 为数字类型
+      const goodsWithNumericPrice = response.items.map((item: Goods) => ({
+        ...item,
+        price: Number(item.price),
+      }))
+      setGoods(goodsWithNumericPrice)
+      setTotal(response.total)
+    } catch (err) {
+      console.error('获取商品列表失败', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // 模拟 API 调用
-    setLoading(true)
-    setTimeout(() => {
-      setGoods(mockGoods)
-      setTotal(mockGoods.length)
-      setLoading(false)
-    }, 500)
-  }, [page, sortBy, keyword])
+    fetchGoodsList()
+  }, [page, sortBy])
 
   const handleSortChange = (value: string) => {
     setSortBy(value)
@@ -205,10 +105,18 @@ const GoodsList = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             background: '#f5f5f5',
-                            fontSize: '80px',
+                            overflow: 'hidden',
                           }}
                         >
-                          📱
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: '80px' }}>📱</span>
+                          )}
                         </div>
                       }
                     >
