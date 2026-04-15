@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.api.v1 import goods, cart, order
+from app.api.v1 import goods, cart, order, favorite
 from app.database import engine, Base
 
 # 创建数据库表
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(goods.router, prefix="/api/v1", tags=["goods"])
 app.include_router(cart.router, prefix="/api/v1", tags=["cart"])
 app.include_router(order.router, prefix="/api/v1", tags=["order"])
+app.include_router(favorite.router, prefix="/api/v1", tags=["favorite"])
 
 
 @app.get("/health")

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Row, Col, Typography, Button, Spin, message, InputNumber, Tabs, Card, Space, Tag, Divider } from 'antd'
-import { ShoppingOutlined, ShoppingCartOutlined, CheckCircleOutlined, TruckOutlined, ReloadOutlined } from '@ant-design/icons'
+import { ShoppingOutlined, ShoppingCartOutlined, CheckCircleOutlined, TruckOutlined, ReloadOutlined, StarOutlined, StarFilled } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import type { RootState } from '@/store'
 import { shopService } from '@/services/shopService'
@@ -17,6 +17,8 @@ const GoodsDetail = () => {
   const [loading, setLoading] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [relatedGoods, setRelatedGoods] = useState<Goods[]>([])
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
 
   const fetchGoodsDetail = async () => {
     if (!id) return
@@ -33,6 +35,10 @@ const GoodsDetail = () => {
         .filter((item: Goods) => item.goods_id !== parseInt(id))
         .map((item: Goods) => ({ ...item, price: Number(item.price) }))
       setRelatedGoods(relatedItems)
+      // 检查收藏状态
+      if (userId) {
+        checkFavoriteStatus()
+      }
     } catch (err) {
       message.error('获取商品详情失败')
     } finally {
@@ -40,9 +46,52 @@ const GoodsDetail = () => {
     }
   }
 
+  const checkFavoriteStatus = async () => {
+    if (!id || !userId) return
+    try {
+      const response = await shopService.checkFavorite(parseInt(id))
+      setIsFavorited(response.is_favorited)
+    } catch (err) {
+      console.error('检查收藏状态失败', err)
+    }
+  }
+
+  const handleToggleFavorite = async () => {
+    if (!userId) {
+      message.warning('请先登录')
+      navigate('/login')
+      return
+    }
+    if (!goods) return
+
+    setFavoriteLoading(true)
+    try {
+      if (isFavorited) {
+        await shopService.removeFavorite(goods.goods_id)
+        setIsFavorited(false)
+        message.success('已取消收藏')
+      } else {
+        await shopService.addFavorite(goods.goods_id)
+        setIsFavorited(true)
+        message.success('已添加到收藏')
+      }
+    } catch (err) {
+      console.error('操作收藏失败', err)
+      message.error(isFavorited ? '取消收藏失败' : '添加收藏失败')
+    } finally {
+      setFavoriteLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchGoodsDetail()
   }, [id])
+
+  useEffect(() => {
+    if (userId && goods) {
+      checkFavoriteStatus()
+    }
+  }, [userId])
 
   const handleAddToCart = async () => {
     if (!userId) {
@@ -181,6 +230,15 @@ const GoodsDetail = () => {
 
                 {/* 操作按钮 */}
                 <Space size="large" style={{ marginTop: 30 }}>
+                  <Button
+                    size="large"
+                    icon={isFavorited ? <StarFilled /> : <StarOutlined />}
+                    onClick={handleToggleFavorite}
+                    loading={favoriteLoading}
+                    style={{ color: isFavorited ? '#faad14' : undefined }}
+                  >
+                    {isFavorited ? '已收藏' : '收藏'}
+                  </Button>
                   <Button
                     size="large"
                     icon={<ShoppingCartOutlined />}
