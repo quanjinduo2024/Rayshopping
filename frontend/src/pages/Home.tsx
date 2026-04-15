@@ -144,9 +144,11 @@ const Home = () => {
                 </Link>
               </Col>
               <Col span={12}>
-                <Button type="text" block icon={<StarOutlined />}>
-                  我的收藏
-                </Button>
+                <Link to="/favorites" style={{ width: '100%', display: 'block' }}>
+                  <Button type="text" block icon={<StarOutlined />}>
+                    我的收藏
+                  </Button>
+                </Link>
               </Col>
               <Col span={12}>
                 <Link to="/cart" style={{ width: '100%', display: 'block' }}>

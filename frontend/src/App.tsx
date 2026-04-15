@@ -8,6 +8,7 @@ import Profile from './pages/user/Profile'
 import GoodsList from './pages/shop/GoodsList'
 import GoodsDetail from './pages/shop/GoodsDetail'
 import Cart from './pages/shop/Cart'
+import Favorites from './pages/shop/Favorites'
 import Checkout from './pages/shop/Checkout'
 import OrderList from './pages/shop/OrderList'
 import OrderDetail from './pages/shop/OrderDetail'
@@ -39,6 +40,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Cart />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/favorites"
+            element={
+              <PrivateRoute>
+                <Favorites />
               </PrivateRoute>
             }
           />
