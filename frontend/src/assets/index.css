@@ -10,9 +10,64 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* 京东风格全局样式 */
+.jd-header {
+  background: linear-gradient(90deg, #1890ff 0%, #096dd9 100%);
+}
+
+.jd-search-box {
+  border-radius: 2px 0 0 2px;
+}
+
+.jd-search-btn {
+  border-radius: 0 2px 2px 0;
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.jd-search-btn:hover {
+  background: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+.jd-category-menu {
+  background: #fff;
+  border-right: 1px solid #e8e8e8;
+}
+
+.jd-category-item:hover {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.jd-product-card {
+  transition: all 0.3s;
+}
+
+.jd-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.jd-product-card:hover .product-name {
+  color: #1890ff;
+}
+
+.jd-price {
+  color: #ff4d4f;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.jd-carousel {
+  border-radius: 4px;
+  overflow: hidden;
 }
