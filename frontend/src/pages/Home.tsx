@@ -132,33 +132,16 @@ const Home = () => {
           </Carousel>
         </Col>
 
-        {/* 右侧用户信息 */}
+        {/* 右侧快捷入口 */}
         <Col xs={24} md={6}>
-          <Card style={{ marginBottom: '20px' }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                <UserOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
-                <div style={{ marginTop: '10px' }}>
-                  <Text strong>欢迎来到 Rayshopping</Text>
-                </div>
-              </div>
-              <Space style={{ width: '100%', justifyContent: 'center' }}>
-                <Link to="/login">
-                  <Button type="primary" ghost>登录</Button>
-                </Link>
-                <Link to="/register">
-                  <Button type="primary">注册</Button>
-                </Link>
-              </Space>
-            </Space>
-          </Card>
-
           <Card title="快捷入口" style={{ marginBottom: '20px' }}>
             <Row gutter={[10, 10]}>
               <Col span={12}>
-                <Button type="text" block icon={<ShoppingOutlined />}>
-                  我的订单
-                </Button>
+                <Link to="/orders" style={{ width: '100%', display: 'block' }}>
+                  <Button type="text" block icon={<ShoppingOutlined />}>
+                    我的订单
+                  </Button>
+                </Link>
               </Col>
               <Col span={12}>
                 <Button type="text" block icon={<StarOutlined />}>
@@ -166,9 +149,11 @@ const Home = () => {
                 </Button>
               </Col>
               <Col span={12}>
-                <Button type="text" block icon={<ShoppingCartOutlined />}>
-                  购物车
-                </Button>
+                <Link to="/cart" style={{ width: '100%', display: 'block' }}>
+                  <Button type="text" block icon={<ShoppingCartOutlined />}>
+                    购物车
+                  </Button>
+                </Link>
               </Col>
               <Col span={12}>
                 <Button type="text" block icon={<UserOutlined />}>
