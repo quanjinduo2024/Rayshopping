@@ -93,9 +93,9 @@ const Header = () => {
   const topMenuItems = [
     { key: 'home', label: <Link to="/">首页</Link>, icon: <HomeOutlined /> },
     { key: 'goods', label: <Link to="/goods">商品分类</Link> },
-    { key: 'flash', label: '闪购' },
-    { key: 'new', label: '新品' },
-    { key: 'hot', label: '热卖' },
+    { key: 'flash', label: <Link to="/goods?tag=flash">闪购</Link> },
+    { key: 'new', label: <Link to="/goods?sort=new">新品</Link> },
+    { key: 'hot', label: <Link to="/goods?sort=hot">热卖</Link> },
   ]
 
   return (
