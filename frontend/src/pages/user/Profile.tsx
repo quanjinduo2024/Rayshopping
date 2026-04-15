@@ -1,66 +1,171 @@
-import { useEffect } from 'react'
-import { Card, Descriptions, Typography, Form, Input, Button, message, Space } from 'antd'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Layout, Menu, Typography, Breadcrumb } from 'antd'
+import {
+  UserOutlined,
+  ShoppingOutlined,
+  HeartOutlined,
+  EnvironmentOutlined,
+  SafetyOutlined,
+  SettingOutlined,
+  HomeOutlined,
+} from '@ant-design/icons'
 import type { AppDispatch, RootState } from '@/store'
 import { fetchUserInfo } from '@/store/userSlice'
-import { userService } from '@/services/userService'
+import { Link, useLocation } from 'react-router-dom'
+import ProfileHome from './ProfileHome'
+import ProfileOrders from './ProfileOrders'
+import ProfileFavorites from './ProfileFavorites'
+import ProfileAddress from './ProfileAddress'
+import ProfileSecurity from './ProfileSecurity'
+import ProfileSettings from './ProfileSettings'
 
+const { Content, Sider } = Layout
 const { Title } = Typography
 
+type MenuKey = 'home' | 'orders' | 'favorites' | 'address' | 'security' | 'settings'
+
 const Profile = () => {
-  const [form] = Form.useForm()
   const dispatch = useDispatch<AppDispatch>()
-  const { user, loading } = useSelector((state: RootState) => state.user)
+  const location = useLocation()
+  const { user } = useSelector((state: RootState) => state.user)
+
+  // 从 URL query 参数获取当前选中的菜单项，默认为 'home'
+  const getSelectedKey = (): MenuKey => {
+    const params = new URLSearchParams(location.search)
+    const tab = params.get('tab') as MenuKey
+    return tab && ['home', 'orders', 'favorites', 'address', 'security', 'settings'].includes(tab)
+      ? tab
+      : 'home'
+  }
+
+  const [selectedKey, setSelectedKey] = useState<MenuKey>(getSelectedKey())
 
   useEffect(() => {
     dispatch(fetchUserInfo())
   }, [dispatch])
 
   useEffect(() => {
-    if (user) {
-      form.setFieldsValue({
-        username: user.username,
-        phone: user.phone || '',
-      })
-    }
-  }, [user, form])
+    setSelectedKey(getSelectedKey())
+  }, [location.search])
 
-  const handleUpdate = async (values: any) => {
-    try {
-      await userService.updateUser({ phone: values.phone })
-      message.success('更新成功')
-      dispatch(fetchUserInfo())
-    } catch (err) {
-      message.error('更新失败')
+  const menuItems = [
+    {
+      key: 'home',
+      icon: <HomeOutlined />,
+      label: '个人主页',
+    },
+    {
+      key: 'orders',
+      icon: <ShoppingOutlined />,
+      label: '我的订单',
+    },
+    {
+      key: 'favorites',
+      icon: <HeartOutlined />,
+      label: '我的收藏',
+    },
+    {
+      key: 'address',
+      icon: <EnvironmentOutlined />,
+      label: '收货地址',
+    },
+    {
+      key: 'security',
+      icon: <SafetyOutlined />,
+      label: '账户安全',
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: '个人设置',
+    },
+  ]
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    setSelectedKey(key as MenuKey)
+  }
+
+  const renderContent = () => {
+    switch (selectedKey) {
+      case 'home':
+        return <ProfileHome />
+      case 'orders':
+        return <ProfileOrders />
+      case 'favorites':
+        return <ProfileFavorites />
+      case 'address':
+        return <ProfileAddress />
+      case 'security':
+        return <ProfileSecurity />
+      case 'settings':
+        return <ProfileSettings />
+      default:
+        return <ProfileHome />
     }
   }
 
+  const getBreadcrumbItems = () => {
+    const items = [
+      { title: <Link to="/">首页</Link> },
+      { title: '会员中心' },
+    ]
+    const currentItem = menuItems.find(item => item.key === selectedKey)
+    if (currentItem) {
+      items.push({ title: currentItem.label })
+    }
+    return items
+  }
+
   return (
-    <div>
-      <Title level={2}>个人中心</Title>
-      <Card>
-        {user && (
-          <Descriptions column={1} bordered style={{ marginBottom: 24 }}>
-            <Descriptions.Item label="用户ID">{user.user_id}</Descriptions.Item>
-            <Descriptions.Item label="用户名">{user.username}</Descriptions.Item>
-            <Descriptions.Item label="手机号">{user.phone || '-'}</Descriptions.Item>
-            <Descriptions.Item label="注册时间">{new Date(user.create_time).toLocaleString()}</Descriptions.Item>
-          </Descriptions>
-        )}
-        <Form form={form} layout="vertical" onFinish={handleUpdate}>
-          <Form.Item label="用户名" name="username">
-            <Input disabled />
-          </Form.Item>
-          <Form.Item label="手机号" name="phone">
-            <Input placeholder="请输入手机号" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              更新信息
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+    <div style={{ background: '#f5f5f5', minHeight: 'calc(100vh - 210px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 0' }}>
+        {/* 面包屑导航 */}
+        <Breadcrumb items={getBreadcrumbItems()} style={{ marginBottom: '20px' }} />
+
+        <Layout style={{ background: 'transparent', minHeight: '600px' }}>
+          {/* 左侧导航 */}
+          <Sider
+            width={200}
+            style={{
+              background: '#fff',
+              borderRight: '1px solid #e8e8e8',
+            }}
+          >
+            <div style={{ padding: '20px', borderBottom: '1px solid #e8e8e8' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <UserOutlined style={{ fontSize: '24px', color: '#1890ff', marginRight: '12px' }} />
+                <div>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                    {user?.username || '用户'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>
+                    普通会员
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedKey]}
+              items={menuItems}
+              onClick={handleMenuClick}
+              style={{ border: 'none' }}
+            />
+          </Sider>
+
+          {/* 右侧内容 */}
+          <Content
+            style={{
+              background: '#fff',
+              marginLeft: '20px',
+              padding: '24px',
+            }}
+          >
+            {renderContent()}
+          </Content>
+        </Layout>
+      </div>
     </div>
   )
 }

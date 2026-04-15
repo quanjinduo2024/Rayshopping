@@ -5,6 +5,28 @@ export interface User {
   create_time: string
 }
 
+export interface Address {
+  address_id: number
+  name: string
+  phone: string
+  province: string
+  city: string
+  district: string
+  detail: string
+  is_default: boolean
+  create_time: string
+}
+
+export interface AddressRequest {
+  name: string
+  phone: string
+  province: string
+  city: string
+  district: string
+  detail: string
+  is_default?: boolean
+}
+
 export interface LoginRequest {
   username: string
   password: string
@@ -18,6 +40,16 @@ export interface RegisterRequest {
 
 export interface UpdateUserRequest {
   phone?: string
+}
+
+export interface UpdatePasswordRequest {
+  current_password: string
+  new_password: string
+}
+
+export interface UpdatePhoneRequest {
+  phone: string
+  code: string
 }
 
 export interface AuthResponse {

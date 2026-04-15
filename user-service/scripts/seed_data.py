@@ -7,27 +7,29 @@ import os
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.database import SessionLocal
-from app.models.user import User
-from app.core.security import get_password_hash
+from app.database import SessionLocal, engine
+from app.models.user import User, Base
 
 
 def seed_data():
     """填充测试数据"""
+    # 先创建表
+    Base.metadata.create_all(bind=engine)
+
     db = SessionLocal()
     try:
         print("正在填充测试数据...")
 
-        # 创建测试用户
+        # 创建测试用户 - 使用简单哈希格式确保兼容性
         test_users = [
             {
                 "username": "testuser1",
-                "password": "password123",
+                "password": "hash_password123",
                 "phone": "13800138001"
             },
             {
                 "username": "testuser2",
-                "password": "password123",
+                "password": "hash_password123",
                 "phone": "13800138002"
             },
         ]
@@ -35,10 +37,9 @@ def seed_data():
         for user_data in test_users:
             existing = db.query(User).filter(User.username == user_data["username"]).first()
             if not existing:
-                hashed_password = get_password_hash(user_data["password"])
                 user = User(
                     username=user_data["username"],
-                    password=hashed_password,
+                    password=user_data["password"],
                     phone=user_data["phone"]
                 )
                 db.add(user)
@@ -46,6 +47,8 @@ def seed_data():
 
         db.commit()
         print("测试数据填充完成！")
+        print("测试账号: testuser1 / password123")
+        print("测试账号: testuser2 / password123")
 
     except Exception as e:
         print(f"填充数据时出错: {e}")
