@@ -87,7 +87,8 @@ class UserService:
                 detail="用户不存在"
             )
 
-        if user_data.phone is not None:
+        # 检查 phone 字段是否被显式设置（包括设置为 None）
+        if "phone" in user_data.model_fields_set:
             user.phone = user_data.phone
 
         db.commit()

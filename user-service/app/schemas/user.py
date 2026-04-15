@@ -17,7 +17,7 @@ class UserLogin(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    phone: str | None = None
+    phone: str | None = None  # None 表示清空手机号
 
 
 class UserResponse(UserBase):

@@ -5,9 +5,6 @@ from app.config import settings
 from app.api.v1 import user
 from app.database import engine, Base
 
-# 创建数据库表
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
     title="Rayshopping User Service",
     description="用户管理与认证服务",
@@ -30,6 +27,12 @@ app.include_router(user.router, prefix="/api/v1", tags=["user"])
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "user-service"}
+
+
+@app.on_event("startup")
+def startup_event():
+    """启动时创建数据库表"""
+    Base.metadata.create_all(bind=engine)
 
 
 if __name__ == "__main__":
