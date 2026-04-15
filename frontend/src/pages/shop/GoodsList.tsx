@@ -105,10 +105,18 @@ const GoodsList = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             background: '#f5f5f5',
-                            fontSize: '80px',
+                            overflow: 'hidden',
                           }}
                         >
-                          📱
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: '80px' }}>📱</span>
+                          )}
                         </div>
                       }
                     >

@@ -131,8 +131,16 @@ const Cart = () => {
                     style={{ marginRight: 15 }}
                   />
 
-                  <div className="jd-cart-image">
-                    <ShoppingOutlined style={{ fontSize: 32, color: '#999' }} />
+                  <div className="jd-cart-image" style={{ overflow: 'hidden' }}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.goods_name || '商品'}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <ShoppingOutlined style={{ fontSize: 32, color: '#999' }} />
+                    )}
                   </div>
 
                   <div style={{ flex: 1 }}>

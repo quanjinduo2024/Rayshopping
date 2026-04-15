@@ -107,8 +107,22 @@ const GoodsDetail = () => {
               {/* 左侧图片区 */}
               <Col xs={24} md={10}>
                 <div className="jd-goods-gallery">
-                  <div className="jd-goods-image">
-                    <ShoppingOutlined style={{ fontSize: 120, color: '#ddd' }} />
+                  <div className="jd-goods-image" style={{ overflow: 'hidden' }}>
+                    {goods.image_url ? (
+                      <img
+                        src={goods.image_url}
+                        alt={goods.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.style.display = 'none'
+                          target.nextElementSibling?.classList.remove('hidden')
+                        }}
+                      />
+                    ) : null}
+                    <ShoppingOutlined
+                      style={{ fontSize: 120, color: '#ddd', display: goods.image_url ? 'none' : 'block' }}
+                    />
                   </div>
                 </div>
               </Col>
@@ -216,13 +230,18 @@ const GoodsDetail = () => {
                   label: '商品介绍',
                   children: (
                     <div className="jd-detail-content">
-                      <Title level={4}>商品详情</Title>
-                      <Paragraph>
-                        这里是商品的详细介绍内容，包含商品的规格参数、使用说明、包装清单等信息。
-                      </Paragraph>
-                      <Paragraph>
-                        （图文详情展示区域）
-                      </Paragraph>
+                      {goods.description ? (
+                        <div style={{ whiteSpace: 'pre-line' }}>
+                          {goods.description.split('\n').map((line, index) => (
+                            <Paragraph key={index}>{line}</Paragraph>
+                          ))}
+                        </div>
+                      ) : (
+                        <>
+                          <Title level={4}>商品详情</Title>
+                          <Paragraph>暂无商品详情</Paragraph>
+                        </>
+                      )}
                     </div>
                   ),
                 },
@@ -232,7 +251,24 @@ const GoodsDetail = () => {
                   children: (
                     <div className="jd-detail-content">
                       <Title level={4}>规格参数</Title>
-                      <Paragraph>商品规格参数信息...</Paragraph>
+                      <Row gutter={[16, 16]}>
+                        <Col span={12}>
+                          <Text strong>商品名称：</Text>
+                          <Text>{goods.name}</Text>
+                        </Col>
+                        <Col span={12}>
+                          <Text strong>商品分类：</Text>
+                          <Text>{goods.category || '未分类'}</Text>
+                        </Col>
+                        <Col span={12}>
+                          <Text strong>商品价格：</Text>
+                          <Text style={{ color: '#ff4d4f', fontWeight: 'bold' }}>¥{goods.price.toFixed(2)}</Text>
+                        </Col>
+                        <Col span={12}>
+                          <Text strong>库存数量：</Text>
+                          <Text>{goods.stock} 件</Text>
+                        </Col>
+                      </Row>
                     </div>
                   ),
                 },
@@ -242,7 +278,11 @@ const GoodsDetail = () => {
                   children: (
                     <div className="jd-detail-content">
                       <Title level={4}>包装清单</Title>
-                      <Paragraph>商品包装清单信息...</Paragraph>
+                      <Paragraph>
+                        {goods.name} × 1<br />
+                        说明书 × 1<br />
+                        保修卡 × 1
+                      </Paragraph>
                     </div>
                   ),
                 },
@@ -267,9 +307,18 @@ const GoodsDetail = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginRight: 12,
+                        overflow: 'hidden',
                       }}
                     >
-                      <ShoppingOutlined style={{ color: '#999' }} />
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <ShoppingOutlined style={{ color: '#999' }} />
+                      )}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, color: '#333', marginBottom: 4 }}>

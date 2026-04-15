@@ -8,7 +8,9 @@ class GoodsBase(BaseModel):
     name: str
     price: Decimal
     intro: str | None = None
+    description: str | None = None
     image_url: str | None = None
+    category: str | None = None
     stock: int = 0
 
 

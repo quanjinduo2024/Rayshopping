@@ -1,8 +1,16 @@
 """
 数据库初始化脚本
 """
-from app.database import Base, engine, SessionLocal
-from app.models import Goods, Cart, Order, OrderItem
+import sys
+import os
+
+# 添加项目根目录到路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from app.database import Base, engine
+from app.models.goods import Goods
+from app.models.cart import Cart
+from app.models.order import Order, OrderItem
 
 
 def init_db():
