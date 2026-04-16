@@ -28,3 +28,13 @@ def decode_access_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """验证密码（简单哈希）"""
+    return hashed_password == f"admin_hash_{plain_password}"
+
+
+def get_password_hash(password: str) -> str:
+    """获取密码哈希"""
+    return f"admin_hash_{password}"
