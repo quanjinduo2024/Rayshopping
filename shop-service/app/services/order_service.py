@@ -76,7 +76,7 @@ class OrderService:
         order = Order(
             user_id=user_id,
             total_price=total_price,
-            status="completed"
+            status="pending_payment"
         )
         db.add(order)
         db.flush()
@@ -137,14 +137,14 @@ class OrderService:
                 "quantity": item.quantity,
                 "price": goods.price,
                 "goods": goods,
-                "cart_item": item
+                "cart_item": item,
             })
 
         # 创建订单（事务处理）
         order = Order(
             user_id=user_id,
             total_price=total_price,
-            status="completed"
+            status="pending_payment"
         )
         db.add(order)
         db.flush()
@@ -165,6 +165,150 @@ class OrderService:
             # 删除购物车项
             db.delete(item_data["cart_item"])
 
+        db.commit()
+        db.refresh(order)
+
+        return OrderResponse.model_validate(order)
+
+    @staticmethod
+    def pay_order(db: Session, user_id: int, order_id: int) -> OrderResponse:
+        """付款（模拟）"""
+        order = db.query(Order).filter(
+            Order.order_id == order_id,
+            Order.user_id == user_id
+        ).first()
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="订单不存在"
+            )
+
+        if order.status != "pending_payment":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="订单状态不允许付款"
+            )
+
+        order.status = "pending_shipment"
+        db.commit()
+        db.refresh(order)
+
+        return OrderResponse.model_validate(order)
+
+    @staticmethod
+    def receive_order(db: Session, user_id: int, order_id: int) -> OrderResponse:
+        """确认收货"""
+        order = db.query(Order).filter(
+            Order.order_id == order_id,
+            Order.user_id == user_id
+        ).first()
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="订单不存在"
+            )
+
+        if order.status != "pending_receipt":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="订单状态不允许确认收货"
+            )
+
+        order.status = "completed"
+        db.commit()
+        db.refresh(order)
+
+        return OrderResponse.model_validate(order)
+
+    @staticmethod
+    def cancel_order(db: Session, user_id: int, order_id: int) -> OrderResponse:
+        """取消订单"""
+        order = db.query(Order).filter(
+            Order.order_id == order_id,
+            Order.user_id == user_id
+        ).first()
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="订单不存在"
+            )
+
+        if order.status not in ["pending_payment", "pending_shipment"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="订单状态不允许取消"
+            )
+
+        # 恢复库存
+        for item in order.items:
+            goods = db.query(Goods).filter(Goods.goods_id == item.goods_id).first()
+            if goods:
+                goods.stock += item.quantity
+
+        order.status = "cancelled"
+        db.commit()
+        db.refresh(order)
+
+        return OrderResponse.model_validate(order)
+
+    @staticmethod
+    def admin_get_order_list(db: Session, status_filter: str | None) -> List[OrderResponse]:
+        """获取所有订单列表（管理用）"""
+        query = db.query(Order).order_by(Order.create_time.desc())
+        if status_filter:
+            query = query.filter(Order.status == status_filter)
+        orders = query.all()
+        return [OrderResponse.model_validate(order) for order in orders]
+
+    @staticmethod
+    def admin_get_order_detail(db: Session, order_id: int) -> OrderDetailResponse | None:
+        """获取订单详情（管理用）"""
+        order = db.query(Order).filter(Order.order_id == order_id).first()
+
+        if not order:
+            return None
+
+        items = []
+        for item in order.items:
+            goods = db.query(Goods).filter(Goods.goods_id == item.goods_id).first()
+            items.append(OrderItemResponse(
+                item_id=item.item_id,
+                goods_id=item.goods_id,
+                goods_name=goods.name if goods else None,
+                quantity=item.quantity,
+                price=item.price
+            ))
+
+        return OrderDetailResponse(
+            order_id=order.order_id,
+            user_id=order.user_id,
+            total_price=order.total_price,
+            status=order.status,
+            create_time=order.create_time,
+            items=items
+        )
+
+    @staticmethod
+    def admin_ship_order(db: Session, order_id: int) -> OrderResponse:
+        """发货（管理用）"""
+        order = db.query(Order).filter(Order.order_id == order_id).first()
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="订单不存在"
+            )
+
+        if order.status != "pending_shipment":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="订单状态不允许发货"
+            )
+
+        order.status = "pending_receipt"
         db.commit()
         db.refresh(order)
 

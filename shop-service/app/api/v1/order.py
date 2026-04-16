@@ -59,3 +59,33 @@ def get_order_detail(
             detail="订单不存在"
         )
     return order
+
+
+@router.post("/pay", response_model=OrderResponse)
+def pay_order(
+    order_id: int = Query(..., description="订单ID"),
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """付款（模拟）"""
+    return OrderService.pay_order(db, current_user_id, order_id)
+
+
+@router.post("/receive", response_model=OrderResponse)
+def receive_order(
+    order_id: int = Query(..., description="订单ID"),
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """确认收货"""
+    return OrderService.receive_order(db, current_user_id, order_id)
+
+
+@router.post("/cancel", response_model=OrderResponse)
+def cancel_order(
+    order_id: int = Query(..., description="订单ID"),
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """取消订单"""
+    return OrderService.cancel_order(db, current_user_id, order_id)

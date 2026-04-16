@@ -6,9 +6,10 @@
 
 ```
 Rayshopping/
-├── frontend/          # React + TypeScript + Vite 前端
+├── frontend/          # React + TypeScript + Vite 用户前端 (端口 3000)
+├── admin-frontend/    # React + TypeScript + Vite 管理后台前端 (端口 3001)
 ├── user-service/      # FastAPI 用户服务 (端口 8001)
-├── shop-service/      # FastAPI 购物服务 (端口 8002)
+├── shop-service/      # FastAPI 购物服务 + 管理后台 (端口 8002)
 ├── docs/              # 项目文档
 └── prd.md             # 产品需求文档
 ```
@@ -69,7 +70,16 @@ python scripts/init_db.py
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload
 ```
 
-### 启动前端服务 (端口 3000)
+#### 3. 初始化 shop-service 管理员账号
+
+```bash
+cd shop-service
+
+# 初始化管理员账号（仅需运行一次）
+python scripts/init_admin.py
+```
+
+### 启动用户前端服务 (端口 3000)
 
 ```bash
 cd frontend
@@ -77,15 +87,38 @@ cd frontend
 # 安装依赖
 npm install
 
+# 复制配置模板
+copy vite.config.ts.example vite.config.ts
+
+# 根据需要修改 vite.config.ts 中的代理地址
+
+# 启动开发服务器
+npm run dev
+```
+
+### 启动管理后台前端服务 (端口 3001)
+
+```bash
+cd admin-frontend
+
+# 安装依赖
+npm install
+
+# 复制配置模板
+copy vite.config.ts.example vite.config.ts
+
+# 注意：vite.config.ts 中的代理地址已指向 shop-service (端口 8002)
+
 # 启动开发服务器
 npm run dev
 ```
 
 ### 访问应用
 
-- 前端: http://localhost:3000
+- 用户前端: http://localhost:3000
+- 管理后台: http://localhost:3001 (默认账号: admin / admin123)
 - user-service API 文档: http://localhost:8001/docs
-- shop-service API 文档: http://localhost:8002/docs
+- shop-service API 文档: http://localhost:8002/docs (包含管理后台接口)
 
 ## 本地开发配置（多人协作）
 
