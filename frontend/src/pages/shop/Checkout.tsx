@@ -173,58 +173,59 @@ const Checkout = () => {
   }
 
   return (
-    <div className="jd-page-content" style={{ padding: '20px 50px' }}>
-      <Title level={2} style={{ marginBottom: 20 }}>
-        结算页
+    <div className="prd-page-content" style={{ padding: '24px 50px' }}>
+      <Title level={2} style={{ marginBottom: 24, color: '#2C2A28' }}>
+        确认订单
       </Title>
 
-      <Row gutter={20}>
+      <Row gutter={24}>
         <Col xs={24} md={16}>
           {/* 收货地址 */}
-          <div className="jd-checkout-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Title level={4} className="jd-checkout-title" style={{ margin: 0 }}>
+          <div className="prd-checkout-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Title level={4} className="prd-checkout-title" style={{ margin: 0 }}>
                 <EnvironmentOutlined style={{ marginRight: 8 }} />
                 收货地址
               </Title>
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAddress}>
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAddress} style={{ borderRadius: 20 }}>
                 新增地址
               </Button>
             </div>
 
             <Spin spinning={addressLoading}>
               {addressList.length === 0 ? (
-                <Card>
+                <div style={{ padding: '40px 0', textAlign: 'center', background: '#FAF9F8', borderRadius: 12 }}>
                   <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
                       <div>
                         <Text type="secondary">暂无收货地址，请先添加</Text>
                         <br />
-                        <Button type="primary" style={{ marginTop: 16 }} onClick={handleAddAddress}>
+                        <Button type="primary" style={{ marginTop: 16, borderRadius: 20 }} onClick={handleAddAddress}>
                           添加地址
                         </Button>
                       </div>
                     }
                   />
-                </Card>
+                </div>
               ) : (
                 <Radio.Group
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(e.target.value)}
                 >
-                  <Space direction="vertical" style={{ width: '100%' }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size="middle">
                     {addressList.map((addr) => (
-                      <Radio key={addr.address_id} value={addr.address_id}>
+                      <Radio key={addr.address_id} value={addr.address_id} style={{ width: '100%' }}>
                         <div
-                          className={`jd-address-item ${selectedAddressId === addr.address_id ? 'selected' : ''}`}
+                          className={`prd-address-item ${selectedAddressId === addr.address_id ? 'selected' : ''}`}
                           onClick={() => setSelectedAddressId(addr.address_id)}
                         >
-                          <div>
-                            <span className="jd-address-name">{addr.name}</span>
-                            <span className="jd-address-phone">{addr.phone}</span>
-                            {addr.is_default && <Tag color="blue" style={{ marginLeft: 8 }}>默认</Tag>}
+                          <div style={{ marginBottom: 8 }}>
+                            <span className="prd-address-name">{addr.name}</span>
+                            <span className="prd-address-phone">{addr.phone}</span>
+                            {addr.is_default && <Tag color="blue" style={{ marginLeft: 8, borderRadius: 10 }}>默认</Tag>}
                           </div>
-                          <div className="jd-address-detail">{getFullAddress(addr)}</div>
+                          <div className="prd-address-detail">{getFullAddress(addr)}</div>
                         </div>
                       </Radio>
                     ))}
@@ -235,30 +236,30 @@ const Checkout = () => {
           </div>
 
           {/* 商品清单 */}
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
+          <div className="prd-checkout-section">
+            <Title level={4} className="prd-checkout-title">
               <ShoppingOutlined style={{ marginRight: 8 }} />
               商品清单
             </Title>
 
             {/* 表头 */}
-            <div style={{ display: 'flex', padding: '10px 0', borderBottom: '2px solid #e8e8e8' }}>
-              <div style={{ flex: 1 }}>商品</div>
-              <div className="jd-checkout-price">单价</div>
-              <div className="jd-checkout-quantity">数量</div>
-              <div className="jd-checkout-total">小计</div>
+            <div style={{ display: 'flex', padding: '12px 0', borderBottom: '2px solid #FAF9F8' }}>
+              <div style={{ flex: 1, color: '#8C8A87', fontSize: 13 }}>商品</div>
+              <div className="prd-checkout-price" style={{ color: '#8C8A87', fontSize: 13 }}>单价</div>
+              <div className="prd-checkout-quantity" style={{ color: '#8C8A87', fontSize: 13 }}>数量</div>
+              <div className="prd-checkout-total" style={{ color: '#8C8A87', fontSize: 13 }}>小计</div>
             </div>
 
             {/* 商品列表 */}
             {cartItems.map((item) => (
-              <div key={item.cart_id} className="jd-checkout-item">
-                <div className="jd-checkout-image">
+              <div key={item.cart_id} className="prd-checkout-item">
+                <div className="prd-checkout-image">
                   <ShoppingOutlined style={{ fontSize: 24, color: '#999' }} />
                 </div>
-                <div className="jd-checkout-name">{item.goods_name || `商品 #${item.goods_id}`}</div>
-                <div className="jd-checkout-price">¥{item.price?.toFixed(2) || '0.00'}</div>
-                <div className="jd-checkout-quantity">x{item.quantity}</div>
-                <div className="jd-checkout-total">
+                <div className="prd-checkout-name">{item.goods_name || `商品 #${item.goods_id}`}</div>
+                <div className="prd-checkout-price">¥{item.price?.toFixed(2) || '0.00'}</div>
+                <div className="prd-checkout-quantity">x{item.quantity}</div>
+                <div className="prd-checkout-total">
                   ¥{((item.price || 0) * item.quantity).toFixed(2)}
                 </div>
               </div>
@@ -268,51 +269,72 @@ const Checkout = () => {
 
         <Col xs={24} md={8}>
           {/* 订单摘要 */}
-          <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
+          <div className="prd-checkout-section">
+            <Title level={4} className="prd-checkout-title">
               订单摘要
             </Title>
 
-            <div className="jd-checkout-summary">
-              <div className="jd-summary-row">
-                <span className="jd-summary-label">商品金额</span>
-                <span className="jd-summary-value">¥{totalPrice.toFixed(2)}</span>
+            <div className="prd-checkout-summary">
+              <div className="prd-summary-row">
+                <span className="prd-summary-label">商品金额</span>
+                <span className="prd-summary-value">¥{totalPrice.toFixed(2)}</span>
               </div>
-              <div className="jd-summary-row">
-                <span className="jd-summary-label">运费</span>
-                <span className="jd-summary-value">
+              <div className="prd-summary-row">
+                <span className="prd-summary-label">运费</span>
+                <span className="prd-summary-value">
                   {shippingFee === 0 ? (
-                    <Tag color="green">免运费</Tag>
+                    <Tag color="green" style={{ borderRadius: 10 }}>免运费</Tag>
                   ) : (
                     `¥${shippingFee.toFixed(2)}`
                   )}
                 </span>
               </div>
               {shippingFee > 0 && (
-                <div style={{ color: '#999', fontSize: 12, marginBottom: 10 }}>
+                <div style={{ color: '#8C8A87', fontSize: 12, marginBottom: 12, textAlign: 'right' }}>
                   （满99元免运费）
                 </div>
               )}
-              <Divider style={{ margin: '10px 0' }} />
-              <div className="jd-summary-row total">
-                <span className="jd-summary-label">应付总额</span>
-                <span className="jd-summary-value">¥{finalPrice.toFixed(2)}</span>
+              <Divider style={{ margin: '12px 0', borderColor: '#EFEDEA' }} />
+              <div className="prd-summary-row total">
+                <span className="prd-summary-label">应付总额</span>
+                <span className="prd-summary-value">¥{finalPrice.toFixed(2)}</span>
               </div>
             </div>
+          </div>
+
+          {/* 服务保障 */}
+          <div className="prd-checkout-section">
+            <Title level={4} className="prd-checkout-title">
+              服务保障
+            </Title>
+            <Space direction="vertical" style={{ width: '100%' }} size="small">
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                <Text style={{ color: '#5E5B57' }}>正品保障</Text>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <CheckCircleOutlined style={{ color: '#1890ff', marginRight: 8 }} />
+                <Text style={{ color: '#5E5B57' }}>7天无理由退货</Text>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <CheckCircleOutlined style={{ color: '#faad14', marginRight: 8 }} />
+                <Text style={{ color: '#5E5B57' }}>极速配送</Text>
+              </div>
+            </Space>
           </div>
         </Col>
       </Row>
 
       {/* 底部提交订单栏 */}
-      <div className="jd-checkout-footer">
+      <div className="prd-checkout-footer">
         <Space>
           <CheckCircleOutlined style={{ color: '#52c41a' }} />
-          <Text>正品保障 · 7天无理由退货 · 极速配送</Text>
+          <Text style={{ color: '#5E5B57' }}>正品保障 · 7天无理由退货 · 极速配送</Text>
         </Space>
-        <Space style={{ marginLeft: 'auto' }}>
+        <Space style={{ marginLeft: 'auto' }} size="middle">
           <div style={{ textAlign: 'right' }}>
-            <Text type="secondary">应付总额：</Text>
-            <Text style={{ fontSize: 20, color: '#ff4d4f', fontWeight: 'bold', marginRight: 20 }}>
+            <Text type="secondary" style={{ color: '#8C8A87' }}>应付总额：</Text>
+            <Text style={{ fontSize: 24, color: '#D97A4A', fontWeight: 600, marginRight: 24 }}>
               ¥{finalPrice.toFixed(2)}
             </Text>
           </div>
@@ -321,7 +343,7 @@ const Checkout = () => {
             size="large"
             loading={submitLoading}
             disabled={!selectedAddressId}
-            className="jd-btn-submit-order"
+            className="prd-btn-submit-order"
             onClick={handleSubmitOrder}
           >
             提交订单
