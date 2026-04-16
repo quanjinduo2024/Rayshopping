@@ -71,7 +71,7 @@ const Header = () => {
     },
     {
       key: 'favorites',
-      label: '我的关注',
+      label: <Link to="/profile?tab=favorites">我的收藏</Link>,
       icon: <HeartOutlined />,
     },
     {
