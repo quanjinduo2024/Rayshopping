@@ -18,9 +18,9 @@ const { Content } = Layout
 
 function App() {
   return (
-    <Layout className="min-h-screen" style={{ background: '#f5f5f5' }}>
+    <Layout className="min-h-screen" style={{ background: 'transparent' }}>
       <Header />
-      <Content style={{ minHeight: 'calc(100vh - 150px)' }}>
+      <Content style={{ minHeight: 'calc(100vh - 150px)', position: 'relative', zIndex: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

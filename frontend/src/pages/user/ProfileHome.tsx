@@ -208,41 +208,6 @@ const ProfileHome = () => {
           ))}
         </Row>
       </Card>
-
-      {/* 我的订单 */}
-      <Card
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>我的订单</span>
-            <Link to="/profile?tab=orders" style={{ fontSize: 14 }}>
-              全部订单 <ArrowRightOutlined />
-            </Link>
-          </div>
-        }
-      >
-        <Row gutter={16}>
-          {orderStatuses.map((status) => (
-            <Col span={24 / orderStatuses.length} key={status.key}>
-              <div
-                onClick={() => handleOrderStatusClick(status.key)}
-                style={{
-                  textAlign: 'center',
-                  padding: '16px 0',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f5f5f5'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent'
-                }}
-              >
-                <Text>{status.label}</Text>
-              </div>
-            </Col>
-          ))}
-        </Row>
-      </Card>
     </div>
   )
 }
