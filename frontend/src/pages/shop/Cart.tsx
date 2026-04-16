@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Checkbox, InputNumber, Button, Typography, Spin, message, Empty, Space, Divider } from 'antd'
+import { Checkbox, InputNumber, Button, Typography, Spin, message, Empty, Space, Divider, Card } from 'antd'
 import { DeleteOutlined, ShoppingOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '@/store'
@@ -72,143 +72,295 @@ const Cart = () => {
   const allChecked = items.length > 0 && items.every((item) => item.checked)
 
   return (
-    <div className="jd-page-content" style={{ padding: '20px 50px' }}>
-      <Title level={2} style={{ marginBottom: 20 }}>
-        <ShoppingCartOutlined style={{ marginRight: 10 }} />
+    <div className="prd-page-content" style={{ padding: '28px 50px' }}>
+      <Title
+        level={2}
+        style={{
+          marginBottom: '24px',
+          fontSize: '24px',
+          fontWeight: '600',
+          color: '#2C2A28',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+        }}
+      >
+        <ShoppingCartOutlined style={{ color: '#D97A4A' }} />
         购物车
       </Title>
 
       <Spin spinning={loading}>
         {items.length === 0 ? (
-          <div style={{ background: '#fff', padding: '80px 0', textAlign: 'center' }}>
+          <Card
+            style={{
+              background: '#fff',
+              padding: '80px 0',
+              textAlign: 'center',
+              borderRadius: '16px',
+              border: 'none',
+            }}
+          >
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="购物车是空的"
+              description={<span style={{ color: '#8C8A87' }}>购物车是空的</span>}
             >
               <Link to="/goods">
-                <Button type="primary" size="large" icon={<ShoppingOutlined />}>
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<ShoppingOutlined />}
+                  style={{
+                    background: '#D97A4A',
+                    borderColor: '#D97A4A',
+                    borderRadius: '24px',
+                    height: '44px',
+                    padding: '0 32px',
+                  }}
+                >
                   去购物
                 </Button>
               </Link>
             </Empty>
-          </div>
+          </Card>
         ) : (
           <>
-            {/* 购物车列表 */}
-            <div className="jd-cart-header">
-              <Space>
-                <Checkbox
-                  checked={allChecked}
-                  onChange={(e) => handleCheckAll(e.target.checked)}
-                >
-                  全选
-                </Checkbox>
-                <Divider type="vertical" />
-                <Text type="secondary">商品信息</Text>
-              </Space>
-              <Space style={{ marginLeft: 'auto' }}>
-                <Text type="secondary" style={{ width: 100, textAlign: 'center' }}>
-                  单价
-                </Text>
-                <Text type="secondary" style={{ width: 120, textAlign: 'center' }}>
-                  数量
-                </Text>
-                <Text type="secondary" style={{ width: 100, textAlign: 'center' }}>
-                  小计
-                </Text>
-                <Text type="secondary" style={{ width: 80, textAlign: 'center' }}>
-                  操作
-                </Text>
-              </Space>
-            </div>
-
-            {items.map((item) => (
-              <div key={item.cart_id} className="jd-cart-item">
-                <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+            {/* 购物车列表 - PRD风格 */}
+            <Card
+              style={{ borderRadius: '16px', border: 'none', marginBottom: '24px' }}
+              styles={{ body: { padding: '0' } }}
+            >
+              {/* 表头 */}
+              <div
+                className="prd-cart-header"
+                style={{
+                  background: '#FAF9F8',
+                  padding: '16px 24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: '16px 16px 0 0',
+                }}
+              >
+                <Space>
                   <Checkbox
-                    checked={item.checked}
-                    onChange={(e) => handleCheckedChange(item.cart_id, e.target.checked)}
-                    style={{ marginRight: 15 }}
-                  />
+                    checked={allChecked}
+                    onChange={(e) => handleCheckAll(e.target.checked)}
+                  >
+                    <span style={{ color: '#5E5B57', fontSize: '14px' }}>全选</span>
+                  </Checkbox>
+                  <Divider type="vertical" style={{ background: '#E8E6E3' }} />
+                  <Text type="secondary" style={{ color: '#8C8A87', fontSize: '14px' }}>
+                    商品信息
+                  </Text>
+                </Space>
+                <Space style={{ marginLeft: 'auto' }} size="large">
+                  <Text
+                    type="secondary"
+                    style={{ width: 100, textAlign: 'center', color: '#8C8A87', fontSize: '14px' }}
+                  >
+                    单价
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ width: 140, textAlign: 'center', color: '#8C8A87', fontSize: '14px' }}
+                  >
+                    数量
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ width: 120, textAlign: 'center', color: '#8C8A87', fontSize: '14px' }}
+                  >
+                    小计
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ width: 80, textAlign: 'center', color: '#8C8A87', fontSize: '14px' }}
+                  >
+                    操作
+                  </Text>
+                </Space>
+              </div>
 
-                  <div className="jd-cart-image" style={{ overflow: 'hidden' }}>
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.goods_name || '商品'}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <ShoppingOutlined style={{ fontSize: 32, color: '#999' }} />
-                    )}
-                  </div>
-
-                  <div style={{ flex: 1 }}>
-                    <Link to={`/goods/${item.goods_id}`} className="jd-cart-title">
-                      {item.goods_name || `商品 #${item.goods_id}`}
-                    </Link>
-                  </div>
-
-                  <div style={{ width: 100, textAlign: 'center' }}>
-                    <span className="jd-cart-price">¥{item.price?.toFixed(2) || '0.00'}</span>
-                  </div>
-
-                  <div style={{ width: 120, textAlign: 'center' }}>
-                    <InputNumber
-                      min={1}
-                      value={item.quantity}
-                      onChange={(value) => handleQuantityChange(item.cart_id, value || 1)}
+              {/* 商品列表 */}
+              {items.map((item, index) => (
+                <div
+                  key={item.cart_id}
+                  className="prd-cart-item"
+                  style={{
+                    background: '#fff',
+                    padding: '20px 24px',
+                    borderTop: index === 0 ? 'none' : '1px solid #FAF9F8',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <Checkbox
+                      checked={item.checked}
+                      onChange={(e) => handleCheckedChange(item.cart_id, e.target.checked)}
+                      style={{ marginRight: '20px' }}
                     />
-                  </div>
 
-                  <div style={{ width: 100, textAlign: 'center' }}>
-                    <span className="jd-cart-total">
-                      ¥{((item.price || 0) * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
-
-                  <div style={{ width: 80, textAlign: 'center' }}>
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleDelete(item.cart_id)}
+                    {/* 商品图片 - 减小尺寸 */}
+                    <div
+                      className="prd-cart-image"
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        background: '#FAF9F8',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        marginRight: '16px',
+                      }}
                     >
-                      删除
-                    </Button>
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.goods_name || '商品'}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            background: '#FAF9F8',
+                          }}
+                        />
+                      ) : (
+                        <ShoppingOutlined style={{ fontSize: '28px', color: '#C8C6C3' }} />
+                      )}
+                    </div>
+
+                    {/* 商品标题 - 优化排版 */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <Link
+                        to={`/goods/${item.goods_id}`}
+                        className="prd-cart-title"
+                        style={{
+                          color: '#2C2A28',
+                          fontSize: '15px',
+                          fontWeight: '500',
+                          lineHeight: '1.5',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {item.goods_name || `商品 #${item.goods_id}`}
+                      </Link>
+                    </div>
+
+                    {/* 单价 */}
+                    <div style={{ width: 100, textAlign: 'center', flexShrink: 0 }}>
+                      <span
+                        className="prd-cart-price"
+                        style={{ color: '#5E5B57', fontSize: '15px', fontWeight: '500' }}
+                      >
+                        ¥{item.price?.toFixed(2) || '0.00'}
+                      </span>
+                    </div>
+
+                    {/* 数量 */}
+                    <div style={{ width: 140, textAlign: 'center', flexShrink: 0 }}>
+                      <InputNumber
+                        min={1}
+                        value={item.quantity}
+                        onChange={(value) => handleQuantityChange(item.cart_id, value || 1)}
+                        style={{ borderRadius: '10px' }}
+                      />
+                    </div>
+
+                    {/* 小计 */}
+                    <div style={{ width: 120, textAlign: 'center', flexShrink: 0 }}>
+                      <span
+                        className="prd-cart-total"
+                        style={{
+                          color: '#D97A4A',
+                          fontSize: '16px',
+                          fontWeight: '600',
+                        }}
+                      >
+                        ¥{((item.price || 0) * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+
+                    {/* 操作 */}
+                    <div style={{ width: 80, textAlign: 'center', flexShrink: 0 }}>
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(item.cart_id)}
+                        style={{ color: '#A8A6A3' }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </Card>
           </>
         )}
       </Spin>
 
-      {/* 底部结算栏 */}
+      {/* 底部结算栏 - PRD风格 */}
       {items.length > 0 && (
-        <div className="jd-cart-footer">
-          <div className="jd-cart-footer-left">
+        <div
+          className="prd-cart-footer"
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '72px',
+            background: '#fff',
+            borderTop: '1px solid #EFEDEA',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 50px',
+            zIndex: 100,
+          }}
+        >
+          <div className="prd-cart-footer-left">
             <Checkbox
               checked={allChecked}
               onChange={(e) => handleCheckAll(e.target.checked)}
             >
-              全选
+              <span style={{ color: '#5E5B57', fontSize: '14px' }}>全选</span>
             </Checkbox>
           </div>
-          <div className="jd-cart-footer-right">
-            <div className="jd-selected-count">
-              已选 <span>{selectedIds.length}</span> 件
+          <div className="prd-cart-footer-right" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div className="prd-selected-count" style={{ color: '#5E5B57', fontSize: '14px' }}>
+              已选 <span style={{ color: '#D97A4A', fontWeight: '600' }}>{selectedIds.length}</span> 件
             </div>
-            <div>
-              <span className="jd-total-price-label">合计：</span>
-              <span className="jd-total-price">¥{totalPrice.toFixed(2)}</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span className="prd-total-price-label" style={{ color: '#5E5B57', fontSize: '14px' }}>
+                合计：
+              </span>
+              <span
+                className="prd-total-price"
+                style={{
+                  color: '#D97A4A',
+                  fontSize: '24px',
+                  fontWeight: '600',
+                }}
+              >
+                ¥{totalPrice.toFixed(2)}
+              </span>
             </div>
             <Button
               type="primary"
               size="large"
-              className="jd-btn-checkout"
+              className="prd-btn-checkout"
               onClick={handleCheckout}
               disabled={selectedIds.length === 0}
+              style={{
+                background: selectedIds.length === 0 ? '#E8E6E3' : '#D97A4A',
+                borderColor: selectedIds.length === 0 ? '#E8E6E3' : '#D97A4A',
+                borderRadius: '24px',
+                height: '44px',
+                padding: '0 40px',
+                fontWeight: '500',
+              }}
             >
               去结算
             </Button>

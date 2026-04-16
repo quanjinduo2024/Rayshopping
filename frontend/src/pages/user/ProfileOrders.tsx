@@ -131,20 +131,22 @@ const ProfileOrders = () => {
 
   return (
     <div>
-      <Card>
+      <Card style={{ borderRadius: 16, border: 'none', boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)' }}>
         <Tabs
           activeKey={activeTab}
           onChange={handleTabChange}
           items={tabItems}
+          style={{ marginBottom: 24 }}
         />
 
         {filteredOrders.length === 0 ? (
           <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <div>
-                <Text type="secondary">暂无订单</Text>
+                <Text type="secondary" style={{ color: '#8C8A87' }}>暂无订单</Text>
                 <br />
-                <Button type="primary" style={{ marginTop: 16 }} onClick={handleBuyAgain}>
+                <Button type="primary" style={{ marginTop: 16, borderRadius: 20 }} onClick={handleBuyAgain}>
                   去购物
                 </Button>
               </div>
@@ -153,45 +155,45 @@ const ProfileOrders = () => {
         ) : (
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             {filteredOrders.map((order) => (
-              <div key={order.order_id} className="jd-order-card">
+              <div key={order.order_id} className="prd-order-card">
                 {/* 订单头部 */}
-                <div className="jd-order-header">
-                  <div className="jd-order-info">
-                    <span className="jd-order-id">订单号：{order.order_id}</span>
-                    <span className="jd-order-time">
+                <div className="prd-order-header">
+                  <div className="prd-order-info">
+                    <span className="prd-order-id">订单号：{order.order_id}</span>
+                    <span className="prd-order-time">
                       {new Date(order.create_time).toLocaleString()}
                     </span>
                   </div>
-                  <Tag color={getStatusColor(order.status)} className="jd-order-status">
+                  <Tag color={getStatusColor(order.status)} className="prd-order-status" style={{ borderRadius: 12 }}>
                     {getStatusText(order.status)}
                   </Tag>
                 </div>
 
                 {/* 订单商品（简略展示） */}
-                <div className="jd-order-body">
+                <div className="prd-order-body">
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="jd-order-image">
+                    <div className="prd-order-image">
                       <ShoppingOutlined style={{ fontSize: 24, color: '#999' }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <Text type="secondary">共 1 件商品</Text>
+                      <Text type="secondary" style={{ color: '#8C8A87' }}>共 1 件商品</Text>
                     </div>
                   </div>
                 </div>
 
                 {/* 订单底部 */}
-                <div className="jd-order-footer">
+                <div className="prd-order-footer">
                   <div>
-                    <span className="jd-order-total-label">订单金额：</span>
-                    <span className="jd-order-total">¥{order.total_price.toFixed(2)}</span>
+                    <span className="prd-order-total-label" style={{ color: '#8C8A87' }}>订单金额：</span>
+                    <span className="prd-order-total">¥{order.total_price.toFixed(2)}</span>
                   </div>
-                  <div className="jd-order-actions">
+                  <div className="prd-order-actions">
                     <Link to={`/orders/${order.order_id}`}>
-                      <Button type="primary" size="small">
+                      <Button type="primary" size="small" style={{ borderRadius: 16 }}>
                         查看详情
                       </Button>
                     </Link>
-                    <Button size="small" onClick={handleBuyAgain}>
+                    <Button size="small" onClick={handleBuyAgain} style={{ borderRadius: 16 }}>
                       再次购买
                     </Button>
                   </div>

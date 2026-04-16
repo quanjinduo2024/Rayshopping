@@ -75,20 +75,20 @@ const OrderList = () => {
   }
 
   return (
-    <div className="jd-page-content" style={{ padding: '20px 50px' }}>
-      <Title level={2} style={{ marginBottom: 20 }}>
+    <div className="prd-page-content" style={{ padding: '24px 50px' }}>
+      <Title level={2} style={{ marginBottom: 24, color: '#2C2A28' }}>
         我的订单
       </Title>
 
       <Spin spinning={loading}>
         {orders.length === 0 ? (
-          <div style={{ background: '#fff', padding: '80px 0', textAlign: 'center' }}>
+          <div className="prd-order-card" style={{ padding: '80px 0', textAlign: 'center' }}>
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description="暂无订单"
             >
               <Link to="/goods">
-                <Button type="primary" size="large" icon={<ShoppingOutlined />}>
+                <Button type="primary" size="large" icon={<ShoppingOutlined />} style={{ borderRadius: 24 }}>
                   去购物
                 </Button>
               </Link>
@@ -97,45 +97,45 @@ const OrderList = () => {
         ) : (
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             {orders.map((order) => (
-              <div key={order.order_id} className="jd-order-card">
+              <div key={order.order_id} className="prd-order-card">
                 {/* 订单头部 */}
-                <div className="jd-order-header">
-                  <div className="jd-order-info">
-                    <span className="jd-order-id">订单号：{order.order_id}</span>
-                    <span className="jd-order-time">
+                <div className="prd-order-header">
+                  <div className="prd-order-info">
+                    <span className="prd-order-id">订单号：{order.order_id}</span>
+                    <span className="prd-order-time">
                       {new Date(order.create_time).toLocaleString()}
                     </span>
                   </div>
-                  <Tag color={getStatusColor(order.status)} className="jd-order-status">
+                  <Tag color={getStatusColor(order.status)} className="prd-order-status" style={{ borderRadius: 12 }}>
                     {getStatusText(order.status)}
                   </Tag>
                 </div>
 
                 {/* 订单商品（简略展示） */}
-                <div className="jd-order-body">
+                <div className="prd-order-body">
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="jd-order-image">
+                    <div className="prd-order-image">
                       <ShoppingCartOutlined style={{ fontSize: 24, color: '#999' }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <Text type="secondary">共 1 件商品</Text>
+                      <Text type="secondary" style={{ color: '#8C8A87' }}>共 1 件商品</Text>
                     </div>
                   </div>
                 </div>
 
                 {/* 订单底部 */}
-                <div className="jd-order-footer">
+                <div className="prd-order-footer">
                   <div>
-                    <span className="jd-order-total-label">订单金额：</span>
-                    <span className="jd-order-total">¥{order.total_price.toFixed(2)}</span>
+                    <span className="prd-order-total-label" style={{ color: '#8C8A87' }}>订单金额：</span>
+                    <span className="prd-order-total">¥{order.total_price.toFixed(2)}</span>
                   </div>
-                  <div className="jd-order-actions">
+                  <div className="prd-order-actions">
                     <Link to={`/orders/${order.order_id}`}>
-                      <Button type="primary" size="small">
+                      <Button type="primary" size="small" style={{ borderRadius: 16 }}>
                         查看详情
                       </Button>
                     </Link>
-                    <Button size="small" onClick={handleBuyAgain}>
+                    <Button size="small" onClick={handleBuyAgain} style={{ borderRadius: 16 }}>
                       再次购买
                     </Button>
                   </div>
