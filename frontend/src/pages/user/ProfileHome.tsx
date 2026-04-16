@@ -150,7 +150,6 @@ const ProfileHome = () => {
             </Link>
           </div>
         }
-        style={{ marginBottom: 20 }}
       >
         <Row gutter={16}>
           {orderStatuses.map((status) => (
@@ -166,27 +165,6 @@ const ProfileHome = () => {
               </div>
             </Col>
           ))}
-        </Row>
-      </Card>
-
-      {/* 功能推荐 */}
-      <Card title="我的资产">
-        <Row gutter={16}>
-          <Col span={8}>
-            <Card size="small" style={{ textAlign: 'center' }}>
-              <Statistic title="积分" value={0} suffix="分" />
-            </Card>
-          </Col>
-          <Col span={8}>
-            <Card size="small" style={{ textAlign: 'center' }}>
-              <Statistic title="余额" value={0} precision={2} prefix="¥" />
-            </Card>
-          </Col>
-          <Col span={8}>
-            <Card size="small" style={{ textAlign: 'center' }}>
-              <Statistic title="红包" value={0} />
-            </Card>
-          </Col>
         </Row>
       </Card>
     </div>
