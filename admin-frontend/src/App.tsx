@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { Layout, Typography, Menu, Space } from 'antd'
-import { ShoppingOutlined, ShopOutlined, UserOutlined, DashboardOutlined } from '@ant-design/icons'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Layout, Typography, Menu, Space, Button, message } from 'antd'
+import { ShoppingOutlined, ShopOutlined, UserOutlined, DashboardOutlined, LogoutOutlined } from '@ant-design/icons'
 import Login from './pages/Login'
 import OrderList from './pages/OrderList'
 import OrderDetail from './pages/OrderDetail'
@@ -11,6 +11,7 @@ import UserList from './pages/UserList'
 import UserDetail from './pages/UserDetail'
 import { useState, useEffect } from 'react'
 import type { Admin } from './types'
+import { adminService } from './services/api'
 
 const { Header, Content, Sider } = Layout
 const { Title } = Typography
@@ -20,8 +21,9 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return token ? <>{children}</> : <Navigate to="/login" replace />
 }
 
-const AdminLayout = ({ admin }: { admin: Admin | null }) => {
+const AdminLayout = ({ admin, onLogout }: { admin: Admin | null, onLogout: () => void }) => {
   const location = useLocation()
+  const navigate = useNavigate()
 
   const menuItems = [
     {
@@ -46,6 +48,12 @@ const AdminLayout = ({ admin }: { admin: Admin | null }) => {
     },
   ]
 
+  const handleLogout = () => {
+    onLogout()
+    message.success('退出成功')
+    navigate('/login')
+  }
+
   return (
     <Layout style={{ minHeight: '100vh', background: '#FAF9F8' }}>
       <Header style={{ background: '#fff', padding: '0 32px', display: 'flex', alignItems: 'center', borderBottom: '1px solid #EFEDEA', height: '64px' }}>
@@ -56,6 +64,14 @@ const AdminLayout = ({ admin }: { admin: Admin | null }) => {
           <Space>
             <UserOutlined style={{ color: '#D97A4A' }} />
             <span style={{ color: '#5E5B57' }}>管理员：{admin.username}</span>
+            <Button
+              type="text"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              style={{ color: '#8E8B87' }}
+            >
+              退出登录
+            </Button>
           </Space>
         )}
       </Header>
@@ -97,6 +113,12 @@ const App = () => {
     }
   }, [])
 
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_info')
+    setAdmin(null)
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -105,7 +127,7 @@ const App = () => {
           path="/*"
           element={
             <PrivateRoute>
-              <AdminLayout admin={admin} />
+              <AdminLayout admin={admin} onLogout={handleLogout} />
             </PrivateRoute>
           }
         />

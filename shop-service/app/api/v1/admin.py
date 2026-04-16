@@ -86,6 +86,12 @@ def login(
     return AdminService.login(db, login_data)
 
 
+@router.post("/auth/logout")
+def logout():
+    """管理员退出登录（JWT无状态，仅作API占位）"""
+    return {"message": "退出成功"}
+
+
 @router.get("/order/list")
 async def get_order_list(
     status: str | None = Query(None, description="订单状态筛选"),

@@ -19,12 +19,15 @@ const api = axios.create({
   timeout: 10000,
 })
 
-// 请求拦截器：添加 token
+// 请求拦截器：添加 token（登录接口除外）
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('admin_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // 登录接口不需要添加 token
+    if (!config.url?.includes('/auth/login')) {
+      const token = localStorage.getItem('admin_token')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
     }
     return config
   },
@@ -47,6 +50,10 @@ api.interceptors.response.use(
 export const adminService = {
   login: (data: AdminLoginRequest): Promise<AuthResponse> => {
     return api.post('/auth/login', data).then((res) => res.data)
+  },
+
+  logout: (): Promise<{ message: string }> => {
+    return api.post('/auth/logout').then((res) => res.data)
   },
 
   getOrderList: (status?: string, user_id?: number): Promise<OrderListResponse> => {
