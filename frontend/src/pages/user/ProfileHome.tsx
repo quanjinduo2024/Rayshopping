@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { Card, Row, Col, Typography, Button, Space, Statistic, Tag, Divider, Avatar } from 'antd'
+import { useEffect, useState } from 'react'
+import { Card, Row, Col, Typography, Button, Tag, Avatar } from 'antd'
 import {
   ShoppingOutlined,
   WalletOutlined,
@@ -10,19 +10,66 @@ import {
   UserOutlined,
 } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import type { AppDispatch, RootState } from '@/store'
 import { fetchUserInfo } from '@/store/userSlice'
 import { Link } from 'react-router-dom'
+import { shopService } from '@/services/shopService'
+import type { Order } from '@/types/order'
 
 const { Title, Text } = Typography
 
 const ProfileHome = () => {
   const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
   const { user } = useSelector((state: RootState) => state.user)
+  const [orderCounts, setOrderCounts] = useState({
+    unpaid: 0,
+    unreceived: 0,
+    unreviewed: 0,
+  })
 
   useEffect(() => {
     dispatch(fetchUserInfo())
   }, [dispatch])
+
+  // 获取订单列表并统计数量
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await shopService.getOrderList()
+        const orderList = response.items || []
+
+        // 统计各状态订单数量
+        const counts = {
+          unpaid: 0,
+          unreceived: 0,
+          unreviewed: 0,
+        }
+
+        orderList.forEach((order: Order) => {
+          switch (order.status) {
+            case 'pending_payment':
+              counts.unpaid++
+              break
+            case 'pending_receipt':
+              counts.unreceived++
+              break
+            case 'completed':
+              // 已完成但未评价的订单（这里简化处理，所有已完成都算作待评价）
+              counts.unreviewed++
+              break
+          }
+        })
+
+        setOrderCounts(counts)
+      } catch (err) {
+        console.error('获取订单列表失败', err)
+      }
+    }
+
+    fetchOrders()
+  }, [])
 
   const getAvatarUrl = () => {
     if (user?.avatar) {
@@ -35,30 +82,41 @@ const ProfileHome = () => {
     return ''
   }
 
+  // 点击快捷入口跳转到对应订单标签页
+  const handleQuickActionClick = (tabKey: string | null) => {
+    if (tabKey) {
+      navigate('/profile?tab=orders&status=' + tabKey)
+    }
+  }
+
   const quickActions = [
     {
       icon: <ShoppingOutlined />,
       title: '待付款',
-      count: 0,
+      count: orderCounts.unpaid,
       color: '#1890ff',
+      tabKey: 'unpaid',
     },
     {
       icon: <WalletOutlined />,
       title: '待收货',
-      count: 0,
+      count: orderCounts.unreceived,
       color: '#52c41a',
+      tabKey: 'unreceived',
     },
     {
       icon: <CommentOutlined />,
       title: '待评价',
-      count: 0,
+      count: orderCounts.unreviewed,
       color: '#faad14',
+      tabKey: 'unreviewed',
     },
     {
       icon: <GiftOutlined />,
       title: '优惠券',
       count: 0,
       color: '#ff4d4f',
+      tabKey: null,
     },
   ]
 
@@ -69,6 +127,11 @@ const ProfileHome = () => {
     { label: '待评价', key: 'unreviewed' },
     { label: '退换/售后', key: 'refund' },
   ]
+
+  // 点击订单状态入口
+  const handleOrderStatusClick = (tabKey: string) => {
+    navigate('/profile?tab=orders&status=' + tabKey)
+  }
 
   return (
     <div>
@@ -108,34 +171,40 @@ const ProfileHome = () => {
           {quickActions.map((action, index) => (
             <Col span={6} key={index}>
               <div
-            style={{
-              textAlign: 'center',
-              padding: '20px 0',
-              cursor: 'pointer',
-              borderRadius: 8,
-              transition: 'all 0.3s',
-              '&:hover': {
-                background: '#f5f5f5',
-              },
-            }}
-          >
-            <div
-              style={{
-                fontSize: 28,
-                color: action.color,
-                marginBottom: 8,
-              }}
-            >
-              {action.icon}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Text strong style={{ fontSize: 18, color: action.color, marginRight: 4 }}>
-                {action.count}
-              </Text>
-              <Text type="secondary">{action.title}</Text>
-            </div>
-          </div>
-          </Col>
+                onClick={() => handleQuickActionClick(action.tabKey)}
+                style={{
+                  textAlign: 'center',
+                  padding: '20px 0',
+                  cursor: action.tabKey ? 'pointer' : 'default',
+                  borderRadius: 8,
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  if (action.tabKey) {
+                    e.currentTarget.style.background = '#f5f5f5'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 28,
+                    color: action.color,
+                    marginBottom: 8,
+                  }}
+                >
+                  {action.icon}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Text strong style={{ fontSize: 18, color: action.color, marginRight: 4 }}>
+                    {action.count}
+                  </Text>
+                  <Text type="secondary">{action.title}</Text>
+                </div>
+              </div>
+            </Col>
           ))}
         </Row>
       </Card>
@@ -155,10 +224,17 @@ const ProfileHome = () => {
           {orderStatuses.map((status) => (
             <Col span={24 / orderStatuses.length} key={status.key}>
               <div
+                onClick={() => handleOrderStatusClick(status.key)}
                 style={{
                   textAlign: 'center',
                   padding: '16px 0',
                   cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f5f5f5'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
                 }}
               >
                 <Text>{status.label}</Text>
