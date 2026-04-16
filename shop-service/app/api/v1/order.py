@@ -16,23 +16,23 @@ router = APIRouter(prefix="/order", tags=["order"])
 
 
 @router.post("/checkout", response_model=OrderResponse)
-def checkout_direct(
+async def checkout_direct(
     order_data: OrderCheckout,
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """直接购买结算"""
-    return OrderService.checkout_direct(db, current_user_id, order_data)
+    return await OrderService.checkout_direct(db, current_user_id, order_data)
 
 
 @router.post("/checkout/cart", response_model=OrderResponse)
-def checkout_cart(
+async def checkout_cart(
     order_data: OrderCartCheckout,
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """购物车结算"""
-    return OrderService.checkout_cart(db, current_user_id, order_data)
+    return await OrderService.checkout_cart(db, current_user_id, order_data)
 
 
 @router.get("/list", response_model=OrderListResponse)

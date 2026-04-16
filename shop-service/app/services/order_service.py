@@ -13,6 +13,7 @@ from app.schemas.order import (
     OrderDetailResponse,
     OrderItemResponse,
 )
+from app.services.user_client import user_client
 
 
 class OrderService:
@@ -50,11 +51,17 @@ class OrderService:
             total_price=order.total_price,
             status=order.status,
             create_time=order.create_time,
+            address_name=order.address_name,
+            address_phone=order.address_phone,
+            address_province=order.address_province,
+            address_city=order.address_city,
+            address_district=order.address_district,
+            address_detail=order.address_detail,
             items=items
         )
 
     @staticmethod
-    def checkout_direct(db: Session, user_id: int, order_data: OrderCheckout) -> OrderResponse:
+    async def checkout_direct(db: Session, user_id: int, order_data: OrderCheckout) -> OrderResponse:
         """直接购买结算"""
         # 检查商品是否存在且库存足够
         goods = db.query(Goods).filter(Goods.goods_id == order_data.goods_id).first()
@@ -69,6 +76,14 @@ class OrderService:
                 detail="库存不足"
             )
 
+        # 获取地址信息
+        address_info = await user_client.get_address_detail(order_data.address_id, user_id)
+        if not address_info:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="地址不存在"
+            )
+
         # 计算总价
         total_price = goods.price * order_data.quantity
 
@@ -76,7 +91,13 @@ class OrderService:
         order = Order(
             user_id=user_id,
             total_price=total_price,
-            status="pending_payment"
+            status="pending_payment",
+            address_name=address_info.get("name"),
+            address_phone=address_info.get("phone"),
+            address_province=address_info.get("province"),
+            address_city=address_info.get("city"),
+            address_district=address_info.get("district"),
+            address_detail=address_info.get("detail"),
         )
         db.add(order)
         db.flush()
@@ -99,7 +120,7 @@ class OrderService:
         return OrderResponse.model_validate(order)
 
     @staticmethod
-    def checkout_cart(db: Session, user_id: int, order_data: OrderCartCheckout) -> OrderResponse:
+    async def checkout_cart(db: Session, user_id: int, order_data: OrderCartCheckout) -> OrderResponse:
         """购物车结算"""
         # 获取选中的购物车项
         cart_items = db.query(Cart).filter(
@@ -112,6 +133,14 @@ class OrderService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="没有选中的商品"
+            )
+
+        # 获取地址信息
+        address_info = await user_client.get_address_detail(order_data.address_id, user_id)
+        if not address_info:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="地址不存在"
             )
 
         total_price = Decimal("0")
@@ -144,7 +173,13 @@ class OrderService:
         order = Order(
             user_id=user_id,
             total_price=total_price,
-            status="pending_payment"
+            status="pending_payment",
+            address_name=address_info.get("name"),
+            address_phone=address_info.get("phone"),
+            address_province=address_info.get("province"),
+            address_city=address_info.get("city"),
+            address_district=address_info.get("district"),
+            address_detail=address_info.get("detail"),
         )
         db.add(order)
         db.flush()
@@ -292,6 +327,12 @@ class OrderService:
             total_price=order.total_price,
             status=order.status,
             create_time=order.create_time,
+            address_name=order.address_name,
+            address_phone=order.address_phone,
+            address_province=order.address_province,
+            address_city=order.address_city,
+            address_district=order.address_district,
+            address_detail=order.address_detail,
             items=items
         )
 

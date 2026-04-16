@@ -39,5 +39,19 @@ class UserServiceClient:
         except Exception:
             return None
 
+    async def get_address_detail(self, address_id: int, user_id: int) -> Optional[dict]:
+        """获取地址详情"""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(
+                    f"{self.base_url}/api/v1/user/address/detail/internal",
+                    params={"address_id": address_id, "user_id": user_id}
+                )
+                if response.status_code == 200:
+                    return response.json()
+                return None
+        except Exception:
+            return None
+
 
 user_client = UserServiceClient()

@@ -201,13 +201,21 @@ const OrderDetail = () => {
           </Card>
 
           <Card title="收货信息" style={{ marginBottom: 20 }}>
-            <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: 4 }}>
-              <div style={{ marginBottom: 8 }}>
-                <Text strong>张三</Text>
-                <Text style={{ marginLeft: 20 }}>138****8888</Text>
+            {order.address_name ? (
+              <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: 4 }}>
+                <div style={{ marginBottom: 8 }}>
+                  <Text strong>{order.address_name}</Text>
+                  <Text style={{ marginLeft: 20 }}>{order.address_phone}</Text>
+                </div>
+                <Text type="secondary">
+                  {order.address_province} {order.address_city} {order.address_district} {order.address_detail}
+                </Text>
               </div>
-              <Text type="secondary">北京市朝阳区建国路88号SOHO现代城A座1001室</Text>
-            </div>
+            ) : (
+              <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: 4 }}>
+                <Text type="secondary">暂无收货信息</Text>
+              </div>
+            )}
           </Card>
 
           <Card title="商品清单">

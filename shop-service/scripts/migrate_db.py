@@ -24,7 +24,7 @@ def migrate_db():
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # 检查并添加 description 字段
+        # 检查并添加 goods 表字段
         cursor.execute("PRAGMA table_info(goods)")
         columns = [col[1] for col in cursor.fetchall()]
 
@@ -39,6 +39,26 @@ def migrate_db():
             cursor.execute("ALTER TABLE goods ADD COLUMN category VARCHAR(50)")
         else:
             print("category 字段已存在")
+
+        # 检查并添加 orders 表地址字段
+        cursor.execute("PRAGMA table_info(orders)")
+        order_columns = [col[1] for col in cursor.fetchall()]
+
+        address_fields = [
+            ('address_name', 'VARCHAR(50)'),
+            ('address_phone', 'VARCHAR(20)'),
+            ('address_province', 'VARCHAR(50)'),
+            ('address_city', 'VARCHAR(50)'),
+            ('address_district', 'VARCHAR(50)'),
+            ('address_detail', 'VARCHAR(200)'),
+        ]
+
+        for field_name, field_type in address_fields:
+            if field_name not in order_columns:
+                print(f"添加 {field_name} 字段...")
+                cursor.execute(f"ALTER TABLE orders ADD COLUMN {field_name} {field_type}")
+            else:
+                print(f"{field_name} 字段已存在")
 
         conn.commit()
         print("数据库迁移完成！")
