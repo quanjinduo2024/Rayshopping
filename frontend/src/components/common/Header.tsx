@@ -90,204 +90,219 @@ const Header = () => {
     },
   ]
 
-  const topMenuItems = [
-    { key: 'home', label: <Link to="/">首页</Link>, icon: <HomeOutlined /> },
-    { key: 'goods', label: <Link to="/goods">商品分类</Link> },
-    { key: 'flash', label: <Link to="/goods?tag=flash">闪购</Link> },
-    { key: 'new', label: <Link to="/goods?sort=new">新品</Link> },
-    { key: 'hot', label: <Link to="/goods?sort=hot">热卖</Link> },
+  const navItems = [
+    { key: 'home', label: '首页', path: '/' },
+    { key: 'goods', label: '商品分类', path: '/goods' },
+    { key: 'flash', label: '闪购', path: '/goods?tag=flash' },
+    { key: 'new', label: '新品', path: '/goods?sort=new' },
+    { key: 'hot', label: '热卖', path: '/goods?sort=hot' },
   ]
 
   return (
     <>
-      {/* 顶部通栏 */}
+      {/* 统一顶栏容器 */}
       <div
         style={{
-          background: '#f5f5f5',
-          borderBottom: '1px solid #e8e8e8',
-          padding: '0 50px',
-          height: '30px',
-          lineHeight: '30px',
-          fontSize: '12px',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Space size="middle">
-            <Text type="secondary">欢迎来到 Rayshopping！</Text>
-          </Space>
-          <Space size="middle">
-            {userId ? (
-              <>
-                <Space size="small">
-                  <Avatar
-                    size={20}
-                    src={getAvatarUrl()}
-                    icon={<UserOutlined />}
-                    style={{
-                      background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
-                    }}
-                  />
-                  <Text type="secondary">
-                    Hi, {user?.username || '用户'}
-                  </Text>
-                </Space>
-                <Link to="/orders">我的订单</Link>
-                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                  <Link to="/profile">会员中心</Link>
-                </Dropdown>
-              </>
-            ) : (
-              <>
-                <Link to="/login">你好，请登录</Link>
-                <Link to="/register" style={{ color: '#1890ff' }}>
-                  免费注册
-                </Link>
-              </>
-            )}
-          </Space>
-        </div>
-      </div>
-
-      {/* 主导航 */}
-      <AntHeader
-        className="jd-header"
-        style={{
-          padding: '10px 50px',
-          height: 'auto',
           background: '#fff',
-          borderBottom: '1px solid #e8e8e8',
+          borderBottom: '1px solid #EFEDEA',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Logo */}
-          <Link to="/" style={{ marginRight: '40px' }}>
-            <div
-              style={{
-                fontSize: '28px',
-                fontWeight: 'bold',
-                color: '#1890ff',
-                letterSpacing: '2px',
-              }}
-            >
-              Rayshopping
-            </div>
-          </Link>
-
-          {/* 搜索框 */}
-          <div style={{ flex: 1, maxWidth: '600px', marginRight: '40px' }}>
-            <Search
-              placeholder="搜索商品"
-              allowClear
-              enterButton={
-                <Button type="primary" className="jd-search-btn" icon={<SearchOutlined />}>
-                  搜索
-                </Button>
-              }
-              size="large"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onSearch={handleSearch}
-            />
-            <div style={{ marginTop: '8px', fontSize: '12px' }}>
-              <Space>
-                <Text type="secondary">热门搜索：</Text>
-                <Link to="/goods" style={{ color: '#666' }}>
-                  iPhone
-                </Link>
-                <Link to="/goods" style={{ color: '#666' }}>
-                  MacBook
-                </Link>
-                <Link to="/goods" style={{ color: '#666' }}>
-                  耳机
-                </Link>
-                <Link to="/goods" style={{ color: '#1890ff' }}>
-                  更多
-                </Link>
-              </Space>
-            </div>
-          </div>
-
-          {/* 购物车 */}
-          <Link to={userId ? '/cart' : '/login'}>
-            <Button
-              size="large"
-              icon={
-                <Badge count={userId ? cartCount : 0} size="small">
-                  <ShoppingCartOutlined />
-                </Badge>
-              }
-            >
-              购物车
-            </Button>
-          </Link>
-        </div>
-      </AntHeader>
-
-      {/* 分类导航 */}
-      <div
-        style={{
-          background: '#1890ff',
-          padding: '0 50px',
-          height: '40px',
-          lineHeight: '40px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {/* 全部商品分类 */}
-          <div
-            style={{
-              width: '200px',
-              background: '#096dd9',
-              padding: '0 15px',
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: '14px',
-              cursor: 'pointer',
-            }}
-          >
-            <ShoppingOutlined style={{ marginRight: '8px' }} />
-            全部商品分类
-          </div>
-
-          {/* 导航菜单 */}
-          <Space size="large" style={{ marginLeft: '30px' }}>
-            {topMenuItems.map((item) => {
-              const targetPath = item.key === 'home' ? '/' : item.key === 'goods' ? '/goods' : '#'
-              const isActive = location.pathname === targetPath
-              return (
-                <Link
-                  key={item.key}
-                  to={targetPath}
-                  style={{
-                    color: '#ffffff',
-                    fontSize: '15px',
-                    fontWeight: isActive ? 'bold' : 'normal',
-                    textShadow: isActive ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
-                    position: 'relative',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {item.icon} {item.label}
-                  {isActive && (
-                    <span
+        {/* 顶部小条 - 用户信息 */}
+        <div
+          style={{
+            background: '#FAF9F8',
+            padding: '0 50px',
+            height: '32px',
+            lineHeight: '32px',
+            fontSize: '12px',
+            borderBottom: '1px solid #EFEDEA',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text type="secondary" style={{ color: '#A8A6A3' }}>
+              欢迎来到 Rayshopping！
+            </Text>
+            <Space size="middle" split={<span style={{ color: '#E8E6E3' }}>|</span>}>
+              {userId ? (
+                <>
+                  <Space size="small">
+                    <Avatar
+                      size={16}
+                      src={getAvatarUrl()}
+                      icon={<UserOutlined />}
                       style={{
-                        position: 'absolute',
-                        bottom: '-8px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '24px',
-                        height: '3px',
-                        background: '#ffffff',
-                        borderRadius: '2px',
+                        background: 'linear-gradient(135deg, #D97A4A 0%, #C86B3A 100%)',
                       }}
                     />
-                  )}
-                </Link>
-              )
-            })}
-          </Space>
+                    <Text style={{ color: '#5E5B57' }}>
+                      Hi, {user?.username || '用户'}
+                    </Text>
+                  </Space>
+                  <Link to="/orders" style={{ color: '#5E5B57' }}>我的订单</Link>
+                  <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                    <span style={{ cursor: 'pointer', color: '#5E5B57' }}>会员中心</span>
+                  </Dropdown>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" style={{ color: '#5E5B57' }}>你好，请登录</Link>
+                  <Link to="/register" style={{ color: '#D97A4A' }}>
+                    免费注册
+                  </Link>
+                </>
+              )}
+            </Space>
+          </div>
         </div>
+
+        {/* 主Header - 搜索栏居中布局 */}
+        <AntHeader
+          style={{
+            padding: '0 50px',
+            height: '72px',
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+            {/* 左侧：Logo + 导航 */}
+            <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+              {/* Logo 区域 */}
+              <Link to="/" style={{ marginRight: '40px', flexShrink: 0 }}>
+                <div
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: '600',
+                    color: '#2C3E2F',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  Rayshopping
+                </div>
+              </Link>
+
+              {/* 导航菜单 */}
+              <Space size="large" style={{ flexShrink: 0 }}>
+                {navItems.map((item) => {
+                  const isActive =
+                    (item.key === 'home' && location.pathname === '/') ||
+                    (item.key === 'goods' && location.pathname === '/goods' && !location.search) ||
+                    (item.key === 'flash' && location.search.includes('tag=flash')) ||
+                    (item.key === 'new' && location.search.includes('sort=new')) ||
+                    (item.key === 'hot' && location.search.includes('sort=hot'))
+
+                  return (
+                    <Link
+                      key={item.key}
+                      to={item.path}
+                      style={{
+                        color: isActive ? '#D97A4A' : '#5E5B57',
+                        fontSize: '15px',
+                        fontWeight: isActive ? '600' : '400',
+                        position: 'relative',
+                        padding: '6px 0',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {item.label}
+                      {isActive && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            bottom: '0px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '24px',
+                            height: '2px',
+                            background: '#D97A4A',
+                            borderRadius: '1px',
+                          }}
+                        />
+                      )}
+                    </Link>
+                  )
+                })}
+              </Space>
+            </div>
+
+            {/* 中间：搜索栏居中 */}
+            <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+              {/* 搜索框 - 独立设计，无边框错位 */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: '#FAF9F8',
+                  borderRadius: '24px',
+                  padding: '4px',
+                }}
+              >
+                <Input
+                  placeholder="搜索商品"
+                  allowClear
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onPressEnter={() => handleSearch(searchText)}
+                  style={{
+                    width: '420px',
+                    background: '#fff',
+                    borderRadius: '20px 0 0 20px',
+                    border: 'none',
+                    boxShadow: 'none',
+                    height: '36px',
+                    padding: '0 16px',
+                  }}
+                />
+                <Button
+                  type="primary"
+                  style={{
+                    background: '#D97A4A',
+                    borderColor: '#D97A4A',
+                    borderRadius: '0 20px 20px 0',
+                    height: '36px',
+                    padding: '0 20px',
+                    marginLeft: '-1px',
+                  }}
+                  icon={<SearchOutlined />}
+                  onClick={() => handleSearch(searchText)}
+                />
+              </div>
+            </div>
+
+            {/* 右侧：购物车 */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+              <Link to={userId ? '/cart' : '/login'}>
+                <Button
+                  style={{
+                    borderRadius: '20px',
+                    background: '#FAF9F8',
+                    border: 'none',
+                    height: '40px',
+                    padding: '0 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                  icon={
+                    <Badge
+                      count={userId ? cartCount : 0}
+                      size="small"
+                      style={{ background: '#D97A4A' }}
+                    >
+                      <ShoppingCartOutlined style={{ color: '#5E5B57', fontSize: '18px' }} />
+                    </Badge>
+                  }
+                >
+                  <span style={{ color: '#5E5B57', fontSize: '14px' }}>购物车</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </AntHeader>
       </div>
     </>
   )
