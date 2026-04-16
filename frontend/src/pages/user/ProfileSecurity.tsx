@@ -86,6 +86,7 @@ const ProfileSecurity = () => {
       }, 1500)
     } catch (error: any) {
       console.error('修改密码失败:', error)
+      message.error(error.response?.data?.detail || '密码修改失败，请检查当前密码是否正确')
     } finally {
       setLoading(false)
     }

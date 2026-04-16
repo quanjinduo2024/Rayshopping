@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Card, Row, Col, Typography, Button, Space, Statistic, Tag, Divider } from 'antd'
+import { Card, Row, Col, Typography, Button, Space, Statistic, Tag, Divider, Avatar } from 'antd'
 import {
   ShoppingOutlined,
   WalletOutlined,
@@ -7,6 +7,7 @@ import {
   CommentOutlined,
   StarOutlined,
   ArrowRightOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '@/store'
@@ -22,6 +23,17 @@ const ProfileHome = () => {
   useEffect(() => {
     dispatch(fetchUserInfo())
   }, [dispatch])
+
+  const getAvatarUrl = () => {
+    if (user?.avatar) {
+      // 如果是相对路径，拼接完整URL
+      if (user.avatar.startsWith('/')) {
+        return `http://localhost:8001${user.avatar}`
+      }
+      return user.avatar
+    }
+    return ''
+  }
 
   const quickActions = [
     {
@@ -63,22 +75,15 @@ const ProfileHome = () => {
       {/* 用户信息卡片 */}
       <Card style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div
+          <Avatar
+            size={80}
+            src={getAvatarUrl()}
+            icon={<UserOutlined />}
             style={{
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
               background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 32,
-              color: '#fff',
               marginRight: 24,
             }}
-          >
-            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-          </div>
+          />
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <Title level={3} style={{ margin: 0, marginRight: 12 }}>
