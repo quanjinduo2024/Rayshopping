@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Card, Form, Input, Button, Typography, message, Divider, Progress, Tag, Row, Col } from 'antd'
 import { SafetyOutlined, LockOutlined, PhoneOutlined, UserOutlined, IdcardOutlined } from '@ant-design/icons'
-import { useSelector } from 'react-redux'
-import type { RootState } from '@/store'
+import { useSelector, useDispatch } from 'react-redux'
+import type { AppDispatch, RootState } from '@/store'
+import { logout } from '@/store/userSlice'
+import { userService } from '@/services/userService'
 
 const { Title, Text } = Typography
 
@@ -11,6 +13,7 @@ const ProfileSecurity = () => {
   const [phoneForm] = Form.useForm()
   const [realNameForm] = Form.useForm()
   const { user } = useSelector((state: RootState) => state.user)
+  const dispatch = useDispatch<AppDispatch>()
   const [countdown, setCountdown] = useState(0)
   const [loading, setLoading] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
@@ -46,7 +49,7 @@ const ProfileSecurity = () => {
   const getPasswordStrengthColor = () => {
     if (passwordStrength < 30) return '#ff4d4f'
     if (passwordStrength < 60) return '#faad14'
-    if (passwordStrength < 80) return '#52c41a'
+    if (passwordStrength < 80) return '#52c41'
     return '#1890ff'
   }
 
@@ -68,12 +71,24 @@ const ProfileSecurity = () => {
       return
     }
     setLoading(true)
-    setTimeout(() => {
+    try {
+      await userService.updatePassword({
+        current_password: values.currentPassword,
+        new_password: values.newPassword
+      })
       message.success('密码修改成功，请重新登录')
       passwordForm.resetFields()
       setPasswordStrength(0)
+      // 退出登录
+      setTimeout(() => {
+        dispatch(logout())
+        window.location.href = '/login'
+      }, 1500)
+    } catch (error: any) {
+      console.error('修改密码失败:', error)
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   const handleSendCode = async () => {
@@ -88,32 +103,47 @@ const ProfileSecurity = () => {
         return
       }
       setLoading(true)
-      setTimeout(() => {
+      try {
+        await userService.sendVerificationCode(phone)
         message.success('验证码已发送')
         setCountdown(60)
-        setLoading(false)
-      }, 800)
+      } catch (error) {
+        message.error('发送验证码失败')
+      }
     } catch (error) {
+      // Error already handled
+    } finally {
       setLoading(false)
     }
   }
 
   const handlePhoneUpdate = async (values: any) => {
     setLoading(true)
-    setTimeout(() => {
+    try {
+      await userService.updatePhone({
+        phone: values.newPhone,
+        code: values.code
+      })
       message.success('手机号绑定成功')
       phoneForm.resetFields()
+    } catch (error) {
+      message.error('手机号绑定失败')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   const handleRealNameVerify = async (values: any) => {
     setLoading(true)
-    setTimeout(() => {
+    try {
+      await userService.verifyRealName(values)
       message.success('实名认证提交成功，等待审核')
       realNameForm.resetFields()
+    } catch (error) {
+      message.error('实名认证提交失败')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

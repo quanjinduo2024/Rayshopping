@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from app.config import settings
 from app.api.v1 import user
@@ -19,6 +21,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 确保上传目录存在
+Path("uploads/avatars").mkdir(parents=True, exist_ok=True)
+
+# 静态文件服务 - 提供上传的头像
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # 注册路由
 app.include_router(user.router, prefix="/api/v1", tags=["user"])

@@ -13,11 +13,11 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api/v1/user': {
-        target: 'http://localhost:8001',
+        target: 'http://localhost:8001',  // 他自己的user-service
         changeOrigin: true,
       },
       '/api/v1': {
-        target: 'http://localhost:8002',
+        target: 'http://192.168.66.125:8002',  // 你的shop-service
         changeOrigin: true,
       },
     },

@@ -1,5 +1,7 @@
 import request from '@/utils/request'
-import type { User, Address, AddressRequest, LoginRequest, RegisterRequest, UpdateUserRequest, UpdatePasswordRequest, UpdatePhoneRequest, AuthResponse } from '@/types/user'
+import axios from 'axios'
+import { getToken } from '@/utils/auth'
+import type { User, Address, AddressRequest, LoginRequest, RegisterRequest, UpdateUserRequest, UpdatePasswordRequest, UpdatePhoneRequest, UpdateAvatarRequest, AuthResponse } from '@/types/user'
 
 export const userService = {
   login: (data: LoginRequest): Promise<AuthResponse> => {
@@ -54,5 +56,23 @@ export const userService = {
 
   verifyRealName: (data: any): Promise<void> => {
     return request.post('/api/v1/user/verify-realname', data)
+  },
+
+  // 头像相关 API
+  uploadAvatar: (file: File): Promise<{ avatar_url: string; message: string }> => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const token = getToken()
+    return axios.post('/api/v1/user/avatar/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+    }).then(res => res.data)
+  },
+
+  updateAvatar: (data: UpdateAvatarRequest): Promise<User> => {
+    return request.put('/api/v1/user/avatar', data)
   },
 }

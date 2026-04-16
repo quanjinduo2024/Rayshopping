@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserUpdate, Token
+from app.schemas.user import UserCreate, UserLogin, UserUpdate, PasswordUpdate, AvatarUpdate, Token
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -91,6 +91,49 @@ class UserService:
         if "phone" in user_data.model_fields_set:
             user.phone = user_data.phone
 
+        db.commit()
+        db.refresh(user)
+        return user
+
+    @staticmethod
+    def update_password(db: Session, user_id: int, password_data: PasswordUpdate) -> None:
+        """更新用户密码"""
+        user = UserService.get_user_by_id(db, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="用户不存在"
+            )
+
+        # 验证当前密码
+        if not verify_password(password_data.current_password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="当前密码错误"
+            )
+
+        # 验证新密码长度
+        if len(password_data.new_password) < 6:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="新密码长度不能少于6位"
+            )
+
+        # 更新密码
+        user.password = get_password_hash(password_data.new_password)
+        db.commit()
+
+    @staticmethod
+    def update_avatar(db: Session, user_id: int, avatar_data: AvatarUpdate) -> User:
+        """更新用户头像"""
+        user = UserService.get_user_by_id(db, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="用户不存在"
+            )
+
+        user.avatar = avatar_data.avatar
         db.commit()
         db.refresh(user)
         return user

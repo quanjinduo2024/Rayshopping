@@ -11,4 +11,5 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False, index=True)
     password = Column(String(255), nullable=False)
     phone = Column(String(20), nullable=True)
+    avatar = Column(String(500), nullable=True)  # 头像URL
     create_time = Column(DateTime(timezone=True), server_default=func.now())
