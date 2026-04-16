@@ -37,10 +37,10 @@ const Register = () => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-      <Card style={{ width: 400 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Title level={2}>用户注册</Title>
+    <div className="prd-page-content" style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+      <Card style={{ width: 420, borderRadius: '16px', border: 'none', boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <Title level={2} style={{ color: '#2C2A28', fontWeight: '600' }}>用户注册</Title>
         </div>
         <Form
           form={form}
@@ -56,7 +56,7 @@ const Register = () => {
               { min: 3, message: '用户名至少3个字符' },
             ]}
           >
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+            <Input prefix={<UserOutlined style={{ color: '#8C8A87' }} />} placeholder="请输入用户名" style={{ borderRadius: '10px' }} />
           </Form.Item>
 
           <Form.Item
@@ -66,7 +66,7 @@ const Register = () => {
               { min: 6, message: '密码至少6个字符' },
             ]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password prefix={<LockOutlined style={{ color: '#8C8A87' }} />} placeholder="请输入密码" style={{ borderRadius: '10px' }} />
           </Form.Item>
 
           <Form.Item
@@ -84,22 +84,22 @@ const Register = () => {
               }),
             ]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="确认密码" />
+            <Input.Password prefix={<LockOutlined style={{ color: '#8C8A87' }} />} placeholder="请再次输入密码" style={{ borderRadius: '10px' }} />
           </Form.Item>
 
           <Form.Item name="phone">
-            <Input prefix={<PhoneOutlined />} placeholder="手机号（可选）" />
+            <Input prefix={<PhoneOutlined style={{ color: '#8C8A87' }} />} placeholder="手机号（可选）" style={{ borderRadius: '10px' }} />
           </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={loading}>
+          <Form.Item style={{ marginTop: 32 }}>
+            <Button type="primary" htmlType="submit" block loading={loading} style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '24px', height: '48px', fontSize: '16px', fontWeight: '500' }}>
               注册
             </Button>
           </Form.Item>
         </Form>
         <div style={{ textAlign: 'center' }}>
-          <Text>
-            已有账号？ <Link to="/login">立即登录</Link>
+          <Text style={{ color: '#8C8A87' }}>
+            已有账号？ <Link to="/login" style={{ color: '#D97A4A', fontWeight: '500' }}>立即登录</Link>
           </Text>
         </div>
       </Card>

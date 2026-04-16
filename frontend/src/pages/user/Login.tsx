@@ -40,10 +40,10 @@ const Login = () => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-      <Card style={{ width: 400 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Title level={2}>用户登录</Title>
+    <div className="prd-page-content" style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+      <Card style={{ width: 420, borderRadius: '16px', border: 'none', boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <Title level={2} style={{ color: '#2C2A28', fontWeight: '600' }}>用户登录</Title>
         </div>
         <Form
           form={form}
@@ -56,25 +56,25 @@ const Login = () => {
             name="username"
             rules={[{ required: true, message: '请输入用户名' }]}
           >
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+            <Input prefix={<UserOutlined style={{ color: '#8C8A87' }} />} placeholder="请输入用户名" style={{ borderRadius: '10px' }} />
           </Form.Item>
 
           <Form.Item
             name="password"
             rules={[{ required: true, message: '请输入密码' }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password prefix={<LockOutlined style={{ color: '#8C8A87' }} />} placeholder="请输入密码" style={{ borderRadius: '10px' }} />
           </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={loading}>
+          <Form.Item style={{ marginTop: 32 }}>
+            <Button type="primary" htmlType="submit" block loading={loading} style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '24px', height: '48px', fontSize: '16px', fontWeight: '500' }}>
               登录
             </Button>
           </Form.Item>
         </Form>
         <div style={{ textAlign: 'center' }}>
-          <Text>
-            还没有账号？ <Link to="/register">立即注册</Link>
+          <Text style={{ color: '#8C8A87' }}>
+            还没有账号？ <Link to="/register" style={{ color: '#D97A4A', fontWeight: '500' }}>立即注册</Link>
           </Text>
         </div>
       </Card>
