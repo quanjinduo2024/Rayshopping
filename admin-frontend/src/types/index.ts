@@ -30,6 +30,15 @@ export interface OrderItem {
   price: number
 }
 
+export interface OrderAddress {
+  address_name?: string
+  address_phone?: string
+  address_province?: string
+  address_city?: string
+  address_district?: string
+  address_detail?: string
+}
+
 export interface Order {
   order_id: number
   user_id: number
@@ -37,6 +46,12 @@ export interface Order {
   status: string
   create_time: string
   user_info?: UserInfo
+  address_name?: string
+  address_phone?: string
+  address_province?: string
+  address_city?: string
+  address_district?: string
+  address_detail?: string
 }
 
 export interface OrderDetail extends Order {

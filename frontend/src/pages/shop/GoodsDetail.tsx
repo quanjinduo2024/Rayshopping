@@ -118,11 +118,13 @@ const GoodsDetail = () => {
     if (!goods) return
 
     try {
-      const order = await shopService.checkoutDirect({ goods_id: goods.goods_id, quantity })
-      message.success('下单成功')
-      navigate(`/orders/${order.order_id}`)
+      // 先添加到购物车
+      await shopService.addToCart({ goods_id: goods.goods_id, quantity })
+      message.success('已加入购物车')
+      // 跳转到购物车页面
+      navigate('/cart')
     } catch (err) {
-      message.error('下单失败')
+      message.error('操作失败')
     }
   }
 

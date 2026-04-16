@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Card, Typography, Button, message, Spin, Radio, Space, Divider, Tag, Empty, Row, Col } from 'antd'
-import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Card, Typography, Button, message, Spin, Radio, Space, Divider, Tag, Empty, Row, Col, Modal, Form, Input, Cascader, Checkbox } from 'antd'
+import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import type { RootState } from '@/store'
 import { shopService } from '@/services/shopService'
+import { userService } from '@/services/userService'
 import type { CartItem } from '@/types/cart'
+import type { Address, AddressRequest } from '@/types/user'
+import regionData from '@/utils/regionData'
 
 const { Title, Text, Paragraph } = Typography
-
-interface Address {
-  id: number
-  name: string
-  phone: string
-  address: string
-  isDefault: boolean
-}
 
 const Checkout = () => {
   const navigate = useNavigate()
@@ -23,27 +18,17 @@ const Checkout = () => {
   const { userId } = useSelector((state: RootState) => state.user)
   const [loading, setLoading] = useState(false)
   const [submitLoading, setSubmitLoading] = useState(false)
+  const [addressLoading, setAddressLoading] = useState(false)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [selectedAddress, setSelectedAddress] = useState<number>(1)
+  const [addressList, setAddressList] = useState<Address[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
 
-  // 模拟收货地址数据
-  const addresses: Address[] = [
-    {
-      id: 1,
-      name: '张三',
-      phone: '138****8888',
-      address: '北京市朝阳区建国路88号SOHO现代城A座1001室',
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: '李四',
-      phone: '139****9999',
-      address: '上海市浦东新区陆家嘴环路1000号恒生银行大厦',
-      isDefault: false,
-    },
-  ]
+  // 添加地址模态框
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [addForm] = Form.useForm()
+  const [addLoading, setAddLoading] = useState(false)
 
+  // 获取购物车数据
   const fetchCartData = async () => {
     if (!userId) {
       navigate('/login')
@@ -72,19 +57,82 @@ const Checkout = () => {
     }
   }
 
+  // 获取地址列表
+  const fetchAddressList = async () => {
+    if (!userId) return
+    setAddressLoading(true)
+    try {
+      const list = await userService.getAddressList()
+      setAddressList(list)
+      // 默认选中第一个地址或默认地址
+      if (list.length > 0) {
+        const defaultAddress = list.find((addr) => addr.is_default)
+        setSelectedAddressId(defaultAddress ? defaultAddress.address_id : list[0].address_id)
+      } else {
+        setSelectedAddressId(null)
+      }
+    } catch (error) {
+      message.error('获取地址列表失败')
+    } finally {
+      setAddressLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchCartData()
+    fetchAddressList()
   }, [userId])
+
+  // 处理添加地址
+  const handleAddAddress = () => {
+    addForm.resetFields()
+    setIsAddModalOpen(true)
+  }
+
+  const handleAddModalOk = async () => {
+    try {
+      const values = await addForm.validateFields()
+      setAddLoading(true)
+
+      // 处理省市区数据
+      const [province, city, district] = values.region || []
+      const addressData: AddressRequest = {
+        name: values.name,
+        phone: values.phone,
+        province,
+        city,
+        district,
+        detail: values.detail,
+        is_default: values.is_default || addressList.length === 0, // 如果是第一个地址，设为默认
+      }
+
+      await userService.addAddress(addressData)
+      message.success('添加地址成功')
+
+      setIsAddModalOpen(false)
+      addForm.resetFields()
+      await fetchAddressList()
+    } catch (error) {
+      message.error('添加地址失败')
+    } finally {
+      setAddLoading(false)
+    }
+  }
 
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
       message.warning('没有可结算的商品')
       return
     }
+    if (!selectedAddressId) {
+      message.warning('请选择收货地址')
+      return
+    }
     setSubmitLoading(true)
     try {
       const order = await shopService.checkoutCart({
         cart_ids: cartItems.map((item) => item.cart_id),
+        address_id: selectedAddressId,
       })
       message.success('订单提交成功！')
       navigate(`/orders/${order.order_id}`)
@@ -93,6 +141,11 @@ const Checkout = () => {
     } finally {
       setSubmitLoading(false)
     }
+  }
+
+  // 格式化完整地址
+  const getFullAddress = (addr: Address) => {
+    return `${addr.province} ${addr.city} ${addr.district} ${addr.detail}`
   }
 
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0)
@@ -129,32 +182,56 @@ const Checkout = () => {
         <Col xs={24} md={16}>
           {/* 收货地址 */}
           <div className="jd-checkout-section">
-            <Title level={4} className="jd-checkout-title">
-              <EnvironmentOutlined style={{ marginRight: 8 }} />
-              收货地址
-            </Title>
-            <Radio.Group
-              value={selectedAddress}
-              onChange={(e) => setSelectedAddress(e.target.value)}
-            >
-              <Space direction="vertical" style={{ width: '100%' }}>
-                {addresses.map((addr) => (
-                  <Radio key={addr.id} value={addr.id}>
-                    <div
-                      className={`jd-address-item ${selectedAddress === addr.id ? 'selected' : ''}`}
-                      onClick={() => setSelectedAddress(addr.id)}
-                    >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Title level={4} className="jd-checkout-title" style={{ margin: 0 }}>
+                <EnvironmentOutlined style={{ marginRight: 8 }} />
+                收货地址
+              </Title>
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAddress}>
+                新增地址
+              </Button>
+            </div>
+
+            <Spin spinning={addressLoading}>
+              {addressList.length === 0 ? (
+                <Card>
+                  <Empty
+                    description={
                       <div>
-                        <span className="jd-address-name">{addr.name}</span>
-                        <span className="jd-address-phone">{addr.phone}</span>
-                        {addr.isDefault && <Tag color="blue" style={{ marginLeft: 8 }}>默认</Tag>}
+                        <Text type="secondary">暂无收货地址，请先添加</Text>
+                        <br />
+                        <Button type="primary" style={{ marginTop: 16 }} onClick={handleAddAddress}>
+                          添加地址
+                        </Button>
                       </div>
-                      <div className="jd-address-detail">{addr.address}</div>
-                    </div>
-                  </Radio>
-                ))}
-              </Space>
-            </Radio.Group>
+                    }
+                  />
+                </Card>
+              ) : (
+                <Radio.Group
+                  value={selectedAddressId}
+                  onChange={(e) => setSelectedAddressId(e.target.value)}
+                >
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    {addressList.map((addr) => (
+                      <Radio key={addr.address_id} value={addr.address_id}>
+                        <div
+                          className={`jd-address-item ${selectedAddressId === addr.address_id ? 'selected' : ''}`}
+                          onClick={() => setSelectedAddressId(addr.address_id)}
+                        >
+                          <div>
+                            <span className="jd-address-name">{addr.name}</span>
+                            <span className="jd-address-phone">{addr.phone}</span>
+                            {addr.is_default && <Tag color="blue" style={{ marginLeft: 8 }}>默认</Tag>}
+                          </div>
+                          <div className="jd-address-detail">{getFullAddress(addr)}</div>
+                        </div>
+                      </Radio>
+                    ))}
+                  </Space>
+                </Radio.Group>
+              )}
+            </Spin>
           </div>
 
           {/* 商品清单 */}
@@ -243,6 +320,7 @@ const Checkout = () => {
             type="primary"
             size="large"
             loading={submitLoading}
+            disabled={!selectedAddressId}
             className="jd-btn-submit-order"
             onClick={handleSubmitOrder}
           >
@@ -250,6 +328,70 @@ const Checkout = () => {
           </Button>
         </Space>
       </div>
+
+      {/* 添加地址模态框 */}
+      <Modal
+        title="新增收货地址"
+        open={isAddModalOpen}
+        onOk={handleAddModalOk}
+        onCancel={() => setIsAddModalOpen(false)}
+        confirmLoading={addLoading}
+        width={500}
+      >
+        <Form form={addForm} layout="vertical">
+          <Form.Item
+            label="收货人"
+            name="name"
+            rules={[{ required: true, message: '请输入收货人' }]}
+          >
+            <Input placeholder="请输入收货人姓名" />
+          </Form.Item>
+          <Form.Item
+            label="手机号码"
+            name="phone"
+            rules={[
+              { required: true, message: '请输入手机号码' },
+              { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码' },
+            ]}
+          >
+            <Input placeholder="请输入手机号码" maxLength={11} />
+          </Form.Item>
+          <Form.Item
+            label="省/市/区"
+            name="region"
+            rules={[{ required: true, message: '请选择省/市/区' }]}
+          >
+            <Cascader
+              options={regionData}
+              placeholder="请选择省/市/区"
+              showSearch={{
+                filter: (inputValue, path) =>
+                  path.some(
+                    (option) =>
+                      (option.label as string)
+                        .toLowerCase()
+                        .indexOf(inputValue.toLowerCase()) > -1
+                  ),
+              }}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
+          <Form.Item
+            label="详细地址"
+            name="detail"
+            rules={[{ required: true, message: '请输入详细地址' }]}
+          >
+            <Input.TextArea placeholder="请输入详细地址，如街道、门牌号等" rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="is_default"
+            valuePropName="checked"
+            initialValue={addressList.length === 0}
+          >
+            <Checkbox>设为默认地址</Checkbox>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   )
 }
