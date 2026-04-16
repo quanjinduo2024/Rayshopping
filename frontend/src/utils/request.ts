@@ -29,11 +29,15 @@ request.interceptors.response.use(
     return response.data
   },
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes('/api/v1/user/login')
+
+    if (error.response?.status === 401 && !isLoginRequest) {
+      // 非登录接口的401才处理为登录过期
       clearAuth()
       message.error('登录已过期，请重新登录')
       window.location.href = '/login'
     } else {
+      // 登录接口的401或其他错误，显示后端返回的具体错误信息
       const errorMessage = (error.response?.data as { detail?: string })?.detail || '请求失败'
       message.error(errorMessage)
     }
