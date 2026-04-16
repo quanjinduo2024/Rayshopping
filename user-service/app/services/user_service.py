@@ -34,6 +34,15 @@ class UserService:
         return user is not None
 
     @staticmethod
+    def get_user_list_paginated(db: Session, page: int = 1, size: int = 20) -> tuple[list[User], int]:
+        """获取用户列表（分页）"""
+        query = db.query(User).order_by(User.create_time.desc())
+        total = query.count()
+        offset = (page - 1) * size
+        items = query.offset(offset).limit(size).all()
+        return items, total
+
+    @staticmethod
     def register(db: Session, user_data: UserCreate) -> Token:
         """用户注册"""
         # 检查用户名是否已存在

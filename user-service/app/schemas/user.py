@@ -77,3 +77,14 @@ class Token(BaseModel):
 
 class UserExistResponse(BaseModel):
     exists: bool
+
+
+class UserListResponse(BaseModel):
+    """用户列表分页响应"""
+    items: list[UserResponse]
+    total: int
+    page: int
+    size: int
+
+    class Config:
+        from_attributes = True

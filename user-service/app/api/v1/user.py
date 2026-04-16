@@ -14,6 +14,7 @@ from app.schemas.user import (
     UserResponse,
     Token,
     UserExistResponse,
+    UserListResponse,
     AddressCreate,
     AddressUpdate,
     AddressResponse,
@@ -68,6 +69,22 @@ def check_user_exist(user_id: int, db: Session = Depends(get_db)):
     """检查用户是否存在（内部接口，供 shop-service 调用）"""
     exists = UserService.check_user_exists(db, user_id)
     return UserExistResponse(exists=exists)
+
+
+@router.get("/list", response_model=UserListResponse)
+def get_user_list(
+    page: int = 1,
+    size: int = 20,
+    db: Session = Depends(get_db),
+):
+    """获取用户列表（内部接口，供 shop-service 调用）"""
+    items, total = UserService.get_user_list_paginated(db, page, size)
+    return UserListResponse(
+        items=[UserResponse.model_validate(user) for user in items],
+        total=total,
+        page=page,
+        size=size
+    )
 
 
 @router.get("/detail", response_model=UserResponse)
