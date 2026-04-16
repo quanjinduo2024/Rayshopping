@@ -12,6 +12,7 @@ const { Option } = Select
 const GoodsList = () => {
   const [searchParams] = useSearchParams()
   const keyword = searchParams.get('keyword')
+  const category = searchParams.get('category')
 
   const [goods, setGoods] = useState<Goods[]>([])
   const [loading, setLoading] = useState(false)
@@ -23,7 +24,7 @@ const GoodsList = () => {
   const fetchGoodsList = async () => {
     setLoading(true)
     try {
-      const response = await shopService.getGoodsList(page, pageSize)
+      const response = await shopService.getGoodsList(page, pageSize, category || undefined)
       // 转换 price 为数字类型
       const goodsWithNumericPrice = response.items.map((item: Goods) => ({
         ...item,
@@ -39,8 +40,15 @@ const GoodsList = () => {
   }
 
   useEffect(() => {
+    setPage(1)
     fetchGoodsList()
-  }, [page, sortBy])
+  }, [category, sortBy])
+
+  useEffect(() => {
+    if (page !== 1) {
+      fetchGoodsList()
+    }
+  }, [page])
 
   const handleSortChange = (value: string) => {
     setSortBy(value)
@@ -56,6 +64,7 @@ const GoodsList = () => {
           </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>商品列表</Breadcrumb.Item>
+        {category && <Breadcrumb.Item>{category}</Breadcrumb.Item>}
         {keyword && <Breadcrumb.Item>搜索: {keyword}</Breadcrumb.Item>}
       </Breadcrumb>
 

@@ -251,19 +251,41 @@ const Header = () => {
 
           {/* 导航菜单 */}
           <Space size="large" style={{ marginLeft: '30px' }}>
-            {topMenuItems.map((item) => (
-              <Link
-                key={item.key}
-                to={item.key === 'home' ? '/' : item.key === 'goods' ? '/goods' : '#'}
-                style={{
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: location.pathname === (item.key === 'home' ? '/' : `/${item.key}`) ? 'bold' : 'normal',
-                }}
-              >
-                {item.icon} {item.label}
-              </Link>
-            ))}
+            {topMenuItems.map((item) => {
+              const targetPath = item.key === 'home' ? '/' : item.key === 'goods' ? '/goods' : '#'
+              const isActive = location.pathname === targetPath
+              return (
+                <Link
+                  key={item.key}
+                  to={targetPath}
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '15px',
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    textShadow: isActive ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
+                    position: 'relative',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {item.icon} {item.label}
+                  {isActive && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: '-8px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '24px',
+                        height: '3px',
+                        background: '#ffffff',
+                        borderRadius: '2px',
+                      }}
+                    />
+                  )}
+                </Link>
+              )
+            })}
           </Space>
         </div>
       </div>

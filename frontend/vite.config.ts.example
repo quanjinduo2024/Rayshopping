@@ -1,0 +1,50 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  server: {
+    port: 3000,
+    proxy: {
+      '/api/v1/user': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+      },
+      '/api/v1': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+      },
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './tests/setup.ts',
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+    },
+  },
+})
+
+/**
+ * 本地开发配置说明（多人协作）：
+ *
+ * 1. 复制此文件为 vite.config.ts
+ * 2. 根据你的本地环境修改 proxy 配置：
+ *
+ * 示例 - 如果你在用户B的电脑（shop-service）：
+ *   '/api/v1/user': 'http://<组员A的IP>:8001',
+ *   '/api/v1': 'http://localhost:8002',
+ *
+ * 示例 - 如果你在用户A的电脑（user-service）：
+ *   '/api/v1/user': 'http://localhost:8001',
+ *   '/api/v1': 'http://<组员B的IP>:8002',
+ *
+ * 注意：vite.config.ts 已加入 .gitignore，不会提交到仓库
+ */
