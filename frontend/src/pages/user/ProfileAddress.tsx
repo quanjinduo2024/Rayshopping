@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm } from 'antd'
+import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm, Cascader, Checkbox } from 'antd'
 import { EnvironmentOutlined, PlusOutlined, EditOutlined, DeleteOutlined, HomeOutlined } from '@ant-design/icons'
 import type { Address, AddressRequest } from '@/types/user'
+import { userService } from '@/services/userService'
+import regionData from '@/utils/regionData'
 
 const { Title, Text } = Typography
 
@@ -10,32 +12,25 @@ const ProfileAddress = () => {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null)
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [fetchLoading, setFetchLoading] = useState(false)
+  const [addressList, setAddressList] = useState<Address[]>([])
 
-  // 模拟地址数据（实际项目中从 API 获取）
-  const [addressList, setAddressList] = useState<Address[]>([
-    {
-      address_id: 1,
-      name: '张三',
-      phone: '13800138000',
-      province: '北京市',
-      city: '北京市',
-      district: '朝阳区',
-      detail: '建国路88号SOHO现代城A座1001室',
-      is_default: true,
-      create_time: new Date().toISOString(),
-    },
-    {
-      address_id: 2,
-      name: '李四',
-      phone: '13900139000',
-      province: '上海市',
-      city: '上海市',
-      district: '浦东新区',
-      detail: '陆家嘴金融中心B座2005室',
-      is_default: false,
-      create_time: new Date().toISOString(),
-    },
-  ])
+  // 获取地址列表
+  const fetchAddressList = async () => {
+    setFetchLoading(true)
+    try {
+      const list = await userService.getAddressList()
+      setAddressList(list)
+    } catch (error) {
+      message.error('获取地址列表失败')
+    } finally {
+      setFetchLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAddressList()
+  }, [])
 
   const handleAdd = () => {
     setEditingAddress(null)
@@ -48,34 +43,37 @@ const ProfileAddress = () => {
     form.setFieldsValue({
       name: address.name,
       phone: address.phone,
-      province: address.province,
-      city: address.city,
-      district: address.district,
+      region: [address.province, address.city, address.district],
       detail: address.detail,
       is_default: address.is_default,
     })
     setIsModalOpen(true)
   }
 
-  const handleDelete = (addressId: number) => {
+  const handleDelete = async (addressId: number) => {
     setLoading(true)
-    setTimeout(() => {
-      setAddressList(prev => prev.filter(item => item.address_id !== addressId))
+    try {
+      await userService.deleteAddress(addressId)
       message.success('删除成功')
+      await fetchAddressList()
+    } catch (error) {
+      message.error('删除失败')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
-  const handleSetDefault = (addressId: number) => {
+  const handleSetDefault = async (addressId: number) => {
     setLoading(true)
-    setTimeout(() => {
-      setAddressList(prev => prev.map(item => ({
-        ...item,
-        is_default: item.address_id === addressId,
-      })))
+    try {
+      await userService.setDefaultAddress(addressId)
       message.success('设置默认地址成功')
+      await fetchAddressList()
+    } catch (error) {
+      message.error('设置默认地址失败')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
   const handleModalOk = async () => {
@@ -83,47 +81,35 @@ const ProfileAddress = () => {
       const values = await form.validateFields()
       setLoading(true)
 
-      setTimeout(() => {
-        if (editingAddress) {
-          // 编辑模式
-          setAddressList(prev => prev.map(item => {
-            if (item.address_id === editingAddress.address_id) {
-              const updated = { ...item, ...values }
-              // 如果设为默认，取消其他地址的默认状态
-              if (values.is_default) {
-                return { ...updated, is_default: true }
-              }
-              return updated
-            }
-            if (values.is_default) {
-              return { ...item, is_default: false }
-            }
-            return item
-          }))
-          message.success('修改成功')
-        } else {
-          // 新增模式
-          const newAddress: Address = {
-            address_id: Date.now(),
-            ...values,
-            create_time: new Date().toISOString(),
-          }
-          setAddressList(prev => {
-            // 如果设为默认，取消其他地址的默认状态
-            if (values.is_default) {
-              return [newAddress, ...prev.map(item => ({ ...item, is_default: false }))]
-            }
-            return [newAddress, ...prev]
-          })
-          message.success('添加成功')
-        }
+      // 处理省市区数据
+      const [province, city, district] = values.region || []
+      const addressData = {
+        name: values.name,
+        phone: values.phone,
+        province,
+        city,
+        district,
+        detail: values.detail,
+        is_default: values.is_default || false,
+      }
 
-        setIsModalOpen(false)
-        form.resetFields()
-        setLoading(false)
-      }, 500)
+      if (editingAddress) {
+        // 编辑模式
+        await userService.updateAddress(editingAddress.address_id, addressData)
+        message.success('修改成功')
+      } else {
+        // 新增模式
+        await userService.addAddress(addressData)
+        message.success('添加成功')
+      }
+
+      setIsModalOpen(false)
+      form.resetFields()
+      await fetchAddressList()
     } catch (error) {
-      // 验证失败
+      message.error(editingAddress ? '修改失败' : '添加失败')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -242,31 +228,23 @@ const ProfileAddress = () => {
           </Form.Item>
           <Form.Item
             label="省/市/区"
-            required
+            name="region"
+            rules={[{ required: true, message: '请选择省/市/区' }]}
           >
-            <Space>
-              <Form.Item
-                name="province"
-                rules={[{ required: true, message: '请选择省份' }]}
-                style={{ marginBottom: 0, flex: 1 }}
-              >
-                <Input placeholder="省份" />
-              </Form.Item>
-              <Form.Item
-                name="city"
-                rules={[{ required: true, message: '请选择城市' }]}
-                style={{ marginBottom: 0, flex: 1 }}
-              >
-                <Input placeholder="城市" />
-              </Form.Item>
-              <Form.Item
-                name="district"
-                rules={[{ required: true, message: '请选择区县' }]}
-                style={{ marginBottom: 0, flex: 1 }}
-              >
-                <Input placeholder="区县" />
-              </Form.Item>
-            </Space>
+            <Cascader
+              options={regionData}
+              placeholder="请选择省/市/区"
+              showSearch={{
+                filter: (inputValue, path) =>
+                  path.some(
+                    (option) =>
+                      (option.label as string)
+                        .toLowerCase()
+                        .indexOf(inputValue.toLowerCase()) > -1
+                  ),
+              }}
+              style={{ width: '100%' }}
+            />
           </Form.Item>
           <Form.Item
             label="详细地址"
@@ -278,8 +256,9 @@ const ProfileAddress = () => {
           <Form.Item
             name="is_default"
             valuePropName="checked"
+            initialValue={false}
           >
-            <input type="checkbox" /> 设为默认地址
+            <Checkbox>设为默认地址</Checkbox>
           </Form.Item>
         </Form>
       </Modal>

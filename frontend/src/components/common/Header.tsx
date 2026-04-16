@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Layout, Input, Button, Space, Dropdown, Badge, Typography } from 'antd'
+import { Layout, Input, Button, Space, Dropdown, Badge, Typography, Avatar } from 'antd'
 import {
   ShoppingOutlined,
   UserOutlined,
@@ -46,6 +46,16 @@ const Header = () => {
     }
   }
 
+  const getAvatarUrl = () => {
+    if (user?.avatar) {
+      if (user.avatar.startsWith('/')) {
+        return `http://localhost:8001${user.avatar}`
+      }
+      return user.avatar
+    }
+    return ''
+  }
+
   const cartCount = items.filter((item) => item.checked).length
 
   const userMenuItems = [
@@ -69,7 +79,7 @@ const Header = () => {
     },
     {
       key: 'settings',
-      label: '账户设置',
+      label: <Link to="/profile?tab=settings">账户设置</Link>,
       icon: <SettingOutlined />,
     },
     {
@@ -108,9 +118,19 @@ const Header = () => {
           <Space size="middle">
             {userId ? (
               <>
-                <Text type="secondary">
-                  Hi, {user?.username || '用户'}
-                </Text>
+                <Space size="small">
+                  <Avatar
+                    size={20}
+                    src={getAvatarUrl()}
+                    icon={<UserOutlined />}
+                    style={{
+                      background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+                    }}
+                  />
+                  <Text type="secondary">
+                    Hi, {user?.username || '用户'}
+                  </Text>
+                </Space>
                 <Link to="/orders">我的订单</Link>
                 <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
                   <Link to="/profile">会员中心</Link>

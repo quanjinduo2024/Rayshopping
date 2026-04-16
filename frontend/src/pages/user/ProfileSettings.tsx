@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from '@/store'
 import { fetchUserInfo } from '@/store/userSlice'
 import { userService } from '@/services/userService'
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface'
 
 const { Title, Text } = Typography
 
@@ -12,7 +13,7 @@ const ProfileSettings = () => {
   const [form] = Form.useForm()
   const dispatch = useDispatch<AppDispatch>()
   const { user, loading } = useSelector((state: RootState) => state.user)
-  const [avatarUrl, setAvatarUrl] = useState<string>('')
+  const [avatarLoading, setAvatarLoading] = useState(false)
 
   useEffect(() => {
     dispatch(fetchUserInfo())
@@ -37,22 +38,52 @@ const ProfileSettings = () => {
     }
   }
 
-  const handleAvatarChange = (info: any) => {
-    if (info.file.status === 'done') {
-      message.success('头像上传成功')
-      setAvatarUrl(URL.createObjectURL(info.file.originFileObj))
-    } else if (info.file.status === 'error') {
-      message.error('头像上传失败')
+  const handleAvatarUpload = async (file: File) => {
+    const isImage = file.type.startsWith('image/')
+    if (!isImage) {
+      message.error('只能上传图片文件!')
+      return Upload.LIST_IGNORE
     }
+    const isLt5M = file.size / 1024 / 1024 < 5
+    if (!isLt5M) {
+      message.error('图片大小不能超过 5MB!')
+      return Upload.LIST_IGNORE
+    }
+
+    setAvatarLoading(true)
+    try {
+      const result = await userService.uploadAvatar(file)
+      // 上传成功后更新用户头像
+      await userService.updateAvatar({ avatar: result.avatar_url })
+      message.success('头像更新成功')
+      // 刷新用户信息
+      dispatch(fetchUserInfo())
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '头像上传失败')
+    } finally {
+      setAvatarLoading(false)
+    }
+    return false // 阻止默认上传行为
   }
 
-  const uploadProps = {
-    name: 'avatar',
+  const getAvatarUrl = () => {
+    if (user?.avatar) {
+      // 如果是相对路径，拼接完整URL
+      if (user.avatar.startsWith('/')) {
+        return `http://localhost:8001${user.avatar}`
+      }
+      return user.avatar
+    }
+    return ''
+  }
+
+  const uploadProps: UploadProps = {
+    name: 'file',
     showUploadList: false,
-    beforeUpload: () => {
-      return false
+    beforeUpload: handleAvatarUpload,
+    customRequest: () => {
+      // 空实现，因为我们在 beforeUpload 中处理了
     },
-    onChange: handleAvatarChange,
   }
 
   return (
@@ -66,7 +97,7 @@ const ProfileSettings = () => {
         <Space size="large">
           <Avatar
             size={100}
-            src={avatarUrl}
+            src={getAvatarUrl()}
             icon={<UserOutlined />}
             style={{
               background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
@@ -77,12 +108,12 @@ const ProfileSettings = () => {
               {user?.username || '用户'}
             </Text>
             <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />}>
+              <Button icon={<UploadOutlined />} loading={avatarLoading}>
                 上传头像
               </Button>
             </Upload>
             <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 12 }}>
-              支持 JPG、PNG 格式，建议尺寸 200x200
+              支持 JPG、PNG 格式，建议尺寸 200x200，大小不超过 5MB
             </Text>
           </div>
         </Space>

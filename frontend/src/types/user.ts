@@ -2,7 +2,12 @@ export interface User {
   user_id: number
   username: string
   phone?: string
+  avatar?: string
   create_time: string
+}
+
+export interface UpdateAvatarRequest {
+  avatar: string
 }
 
 export interface Address {
