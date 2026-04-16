@@ -116,7 +116,7 @@ const ProfileHome = () => {
       title: '优惠券',
       count: 0,
       color: '#ff4d4f',
-      tabKey: null,
+      tabKey: "coupons",
     },
   ]
 
