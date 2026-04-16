@@ -290,11 +290,13 @@ class OrderService:
         return OrderResponse.model_validate(order)
 
     @staticmethod
-    def admin_get_order_list(db: Session, status_filter: str | None) -> List[Order]:
+    def admin_get_order_list(db: Session, status_filter: str | None, user_id_filter: int | None) -> List[Order]:
         """获取所有订单列表（管理用） - 返回原始 Order 对象"""
         query = db.query(Order).order_by(Order.create_time.desc())
         if status_filter:
             query = query.filter(Order.status == status_filter)
+        if user_id_filter:
+            query = query.filter(Order.user_id == user_id_filter)
         return query.all()
 
     @staticmethod

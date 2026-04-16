@@ -12,6 +12,21 @@ import regionData from '@/utils/regionData'
 
 const { Title, Text, Paragraph } = Typography
 
+// 直接购买模式下的商品类型
+interface DirectGoods {
+  goods_id: number
+  name: string
+  price: number
+  image_url?: string
+  quantity: number
+}
+
+// 位置 state 类型
+interface CheckoutLocationState {
+  mode: 'cart' | 'direct'
+  goods?: DirectGoods
+}
+
 const Checkout = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -20,16 +35,21 @@ const Checkout = () => {
   const [submitLoading, setSubmitLoading] = useState(false)
   const [addressLoading, setAddressLoading] = useState(false)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [directGoods, setDirectGoods] = useState<DirectGoods | null>(null)
   const [addressList, setAddressList] = useState<Address[]>([])
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
+
+  // 结算模式：cart-购物车结算，direct-直接购买
+  const mode = (location.state as CheckoutLocationState)?.mode || 'cart'
 
   // 添加地址模态框
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [addForm] = Form.useForm()
   const [addLoading, setAddLoading] = useState(false)
 
-  // 获取购物车数据
+  // 获取购物车数据（仅购物车模式）
   const fetchCartData = async () => {
+    if (mode !== 'cart') return
     if (!userId) {
       navigate('/login')
       return
@@ -57,6 +77,18 @@ const Checkout = () => {
     }
   }
 
+  // 获取直接购买商品数据（仅直接模式）
+  const fetchDirectGoods = () => {
+    if (mode !== 'direct') return
+    const state = location.state as CheckoutLocationState
+    if (state?.goods) {
+      setDirectGoods(state.goods)
+    } else {
+      message.warning('商品信息缺失')
+      navigate('/goods')
+    }
+  }
+
   // 获取地址列表
   const fetchAddressList = async () => {
     if (!userId) return
@@ -79,9 +111,13 @@ const Checkout = () => {
   }
 
   useEffect(() => {
-    fetchCartData()
+    if (mode === 'cart') {
+      fetchCartData()
+    } else {
+      fetchDirectGoods()
+    }
     fetchAddressList()
-  }, [userId])
+  }, [userId, mode])
 
   // 处理添加地址
   const handleAddAddress = () => {
@@ -120,24 +156,33 @@ const Checkout = () => {
   }
 
   const handleSubmitOrder = async () => {
-    if (cartItems.length === 0) {
-      message.warning('没有可结算的商品')
-      return
-    }
     if (!selectedAddressId) {
       message.warning('请选择收货地址')
       return
     }
     setSubmitLoading(true)
     try {
-      const order = await shopService.checkoutCart({
-        cart_ids: cartItems.map((item) => item.cart_id),
-        address_id: selectedAddressId,
-      })
+      let order
+      if (mode === 'direct' && directGoods) {
+        // 直接购买模式
+        order = await shopService.checkoutDirect({
+          goods_id: directGoods.goods_id,
+          quantity: directGoods.quantity,
+          address_id: selectedAddressId,
+        })
+      } else if (mode === 'cart' && cartItems.length > 0) {
+        // 购物车模式
+        order = await shopService.checkoutCart({
+          cart_ids: cartItems.map((item) => item.cart_id),
+          address_id: selectedAddressId,
+        })
+      } else {
+        throw new Error('没有可结算的商品')
+      }
       message.success('订单提交成功！')
       navigate(`/orders/${order.order_id}`)
-    } catch (err) {
-      message.error('订单提交失败')
+    } catch (err: any) {
+      message.error(err?.response?.data?.detail || '订单提交失败')
     } finally {
       setSubmitLoading(false)
     }
@@ -148,7 +193,15 @@ const Checkout = () => {
     return `${addr.province} ${addr.city} ${addr.district} ${addr.detail}`
   }
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0)
+  // 计算商品总价
+  const calculateTotalPrice = () => {
+    if (mode === 'direct' && directGoods) {
+      return directGoods.price * directGoods.quantity
+    }
+    return cartItems.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0)
+  }
+
+  const totalPrice = calculateTotalPrice()
   const shippingFee = totalPrice >= 99 ? 0 : 8
   const finalPrice = totalPrice + shippingFee
 
@@ -160,12 +213,14 @@ const Checkout = () => {
     )
   }
 
-  if (cartItems.length === 0) {
+  const hasItems = (mode === 'direct' && directGoods) || (mode === 'cart' && cartItems.length > 0)
+
+  if (!hasItems) {
     return (
       <div style={{ padding: '100px 50px' }}>
         <Empty description="没有可结算的商品">
-          <Button type="primary" icon={<ShoppingOutlined />} onClick={() => navigate('/cart')}>
-            返回购物车
+          <Button type="primary" icon={<ShoppingOutlined />} onClick={() => navigate(mode === 'cart' ? '/cart' : '/goods')}>
+            {mode === 'cart' ? '返回购物车' : '返回商品列表'}
           </Button>
         </Empty>
       </div>

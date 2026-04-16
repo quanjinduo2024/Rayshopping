@@ -5,6 +5,13 @@ import type {
   OrderListResponse,
   OrderDetail,
   Order,
+  GoodsListResponse,
+  Goods,
+  GoodsCreate,
+  GoodsUpdate,
+  StatsOverview,
+  UserListResponse,
+  User,
 } from '../types'
 
 const api = axios.create({
@@ -42,10 +49,13 @@ export const adminService = {
     return api.post('/auth/login', data).then((res) => res.data)
   },
 
-  getOrderList: (status?: string): Promise<OrderListResponse> => {
+  getOrderList: (status?: string, user_id?: number): Promise<OrderListResponse> => {
     const params: Record<string, any> = {}
     if (status) {
       params.status = status
+    }
+    if (user_id) {
+      params.user_id = user_id
     }
     return api.get('/order/list', { params }).then((res) => res.data)
   },
@@ -56,6 +66,48 @@ export const adminService = {
 
   shipOrder: (orderId: number): Promise<Order> => {
     return api.post('/order/ship', null, { params: { order_id: orderId } }).then((res) => res.data)
+  },
+
+  // ==================== 商品管理 ====================
+
+  getGoodsList: (page: number = 1, size: number = 20, search?: string): Promise<GoodsListResponse> => {
+    const params: Record<string, any> = { page, size }
+    if (search) {
+      params.search = search
+    }
+    return api.get('/goods/list', { params }).then((res) => res.data)
+  },
+
+  getGoodsDetail: (goodsId: number): Promise<Goods> => {
+    return api.get('/goods/detail', { params: { goods_id: goodsId } }).then((res) => res.data)
+  },
+
+  createGoods: (data: GoodsCreate): Promise<Goods> => {
+    return api.post('/goods/create', data).then((res) => res.data)
+  },
+
+  updateGoods: (goodsId: number, data: GoodsUpdate): Promise<Goods> => {
+    return api.put('/goods/update', data, { params: { goods_id: goodsId } }).then((res) => res.data)
+  },
+
+  deleteGoods: (goodsId: number): Promise<{ message: string }> => {
+    return api.delete('/goods/delete', { params: { goods_id: goodsId } }).then((res) => res.data)
+  },
+
+  // ==================== 统计 ====================
+
+  getStatsOverview: (): Promise<StatsOverview> => {
+    return api.get('/stats/overview').then((res) => res.data)
+  },
+
+  // ==================== 用户管理 ====================
+
+  getUserList: (page: number = 1, size: number = 20): Promise<UserListResponse> => {
+    return api.get('/user/list', { params: { page, size } }).then((res) => res.data)
+  },
+
+  getUserDetail: (userId: number): Promise<User> => {
+    return api.get('/user/detail', { params: { user_id: userId } }).then((res) => res.data)
   },
 }
 

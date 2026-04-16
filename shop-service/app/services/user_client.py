@@ -1,5 +1,5 @@
 import httpx
-from typing import Optional
+from typing import Optional, List
 
 from app.config import settings
 
@@ -32,6 +32,20 @@ class UserServiceClient:
                 response = await client.get(
                     f"{self.base_url}/api/v1/user/detail",
                     params={"user_id": user_id}
+                )
+                if response.status_code == 200:
+                    return response.json()
+                return None
+        except Exception:
+            return None
+
+    async def get_user_list(self, page: int = 1, size: int = 20) -> Optional[dict]:
+        """获取用户列表"""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(
+                    f"{self.base_url}/api/v1/user/list",
+                    params={"page": page, "size": size}
                 )
                 if response.status_code == 200:
                     return response.json()

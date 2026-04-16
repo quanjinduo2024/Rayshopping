@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Table, Typography, Tag, Space, Button, Select, Card, Spin, message, Avatar } from 'antd'
-import { ShoppingOutlined, EyeOutlined, SendOutlined, UserOutlined } from '@ant-design/icons'
+import { Table, Typography, Tag, Space, Button, Select, Card, Spin, message, Avatar, Input } from 'antd'
+import { ShoppingOutlined, EyeOutlined, SendOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons'
 import { adminService } from '../services/api'
 import type { Order } from '../types'
 
@@ -15,6 +15,7 @@ const OrderList = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined)
+  const [userIdFilter, setUserIdFilter] = useState<string | undefined>(undefined)
   const [shipLoading, setShipLoading] = useState<number | null>(null)
 
   const getStatusColor = (status: OrderStatus) => {
@@ -59,7 +60,7 @@ const OrderList = () => {
   const fetchOrders = async () => {
     setLoading(true)
     try {
-      const response = await adminService.getOrderList(statusFilter)
+      const response = await adminService.getOrderList(statusFilter, userIdFilter ? parseInt(userIdFilter) : undefined)
       const ordersWithNumericPrice = response.items.map((order) => ({
         ...order,
         total_price: Number(order.total_price),
@@ -74,7 +75,7 @@ const OrderList = () => {
 
   useEffect(() => {
     fetchOrders()
-  }, [statusFilter])
+  }, [statusFilter, userIdFilter])
 
   const handleShip = async (orderId: number) => {
     setShipLoading(orderId)
@@ -118,7 +119,7 @@ const OrderList = () => {
       dataIndex: 'total_price',
       key: 'total_price',
       width: 120,
-      render: (price: number) => <span style={{ color: '#e4393c', fontWeight: 'bold' }}>¥{price.toFixed(2)}</span>,
+      render: (price: number) => <span style={{ color: '#D97A4A', fontWeight: 'bold' }}>¥{price.toFixed(2)}</span>,
     },
     {
       title: '订单状态',
@@ -126,7 +127,9 @@ const OrderList = () => {
       key: 'status',
       width: 120,
       render: (status: OrderStatus) => (
-        <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+        <Tag color={getStatusColor(status)} style={{ borderRadius: '10px' }}>
+          {getStatusText(status)}
+        </Tag>
       ),
     },
     {
@@ -142,7 +145,7 @@ const OrderList = () => {
       render: (_: any, record: Order) => (
         <Space>
           <Link to={`/orders/${record.order_id}`}>
-            <Button size="small" icon={<EyeOutlined />}>
+            <Button size="small" icon={<EyeOutlined />} style={{ borderRadius: '12px' }}>
               查看
             </Button>
           </Link>
@@ -153,6 +156,7 @@ const OrderList = () => {
               icon={<SendOutlined />}
               loading={shipLoading === record.order_id}
               onClick={() => handleShip(record.order_id)}
+              style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '12px' }}
             >
               发货
             </Button>
@@ -163,28 +167,38 @@ const OrderList = () => {
   ]
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={2} style={{ margin: 0 }}>
-          <ShoppingOutlined style={{ marginRight: 8 }} />
+    <div style={{ padding: '20px 24px', background: '#FAF9F8', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <Title level={2} style={{ margin: 0, color: '#2C2A28', fontWeight: '600' }}>
+          <ShoppingOutlined style={{ marginRight: 8, color: '#D97A4A' }} />
           订单管理
         </Title>
-        <Select
-          placeholder="筛选订单状态"
-          style={{ width: 200 }}
-          allowClear
-          value={statusFilter}
-          onChange={setStatusFilter}
-        >
-          <Option value="pending_payment">待付款</Option>
-          <Option value="pending_shipment">待发货</Option>
-          <Option value="pending_receipt">待收货</Option>
-          <Option value="completed">已完成</Option>
-          <Option value="cancelled">已取消</Option>
-        </Select>
+        <Space>
+          <Input
+            placeholder="按用户ID筛选"
+            prefix={<UserOutlined />}
+            style={{ width: 160, borderRadius: '12px' }}
+            allowClear
+            value={userIdFilter}
+            onChange={(e) => setUserIdFilter(e.target.value || undefined)}
+          />
+          <Select
+            placeholder="筛选订单状态"
+            style={{ width: 160, borderRadius: '12px' }}
+            allowClear
+            value={statusFilter}
+            onChange={setStatusFilter}
+          >
+            <Option value="pending_payment">待付款</Option>
+            <Option value="pending_shipment">待发货</Option>
+            <Option value="pending_receipt">待收货</Option>
+            <Option value="completed">已完成</Option>
+            <Option value="cancelled">已取消</Option>
+          </Select>
+        </Space>
       </div>
 
-      <Card>
+      <Card style={{ borderRadius: '16px', border: 'none' }}>
         <Spin spinning={loading}>
           <Table
             columns={columns}

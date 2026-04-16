@@ -38,10 +38,10 @@ const Login = ({ onLogin }: LoginProps) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      background: '#FAF9F8'
     }}>
-      <Card style={{ width: 400 }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: 32 }}>
+      <Card style={{ width: 420, borderRadius: '20px', border: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+        <Title level={2} style={{ textAlign: 'center', marginBottom: 32, color: '#2C2A28', fontWeight: '600' }}>
           Rayshopping 管理后台
         </Title>
         <Form
@@ -54,8 +54,9 @@ const Login = ({ onLogin }: LoginProps) => {
             rules={[{ required: true, message: '请输入用户名' }]}
           >
             <Input
-              prefix={<UserOutlined />}
+              prefix={<UserOutlined style={{ color: '#C8C6C3' }} />}
               placeholder="用户名"
+              style={{ borderRadius: '12px' }}
             />
           </Form.Item>
           <Form.Item
@@ -63,8 +64,9 @@ const Login = ({ onLogin }: LoginProps) => {
             rules={[{ required: true, message: '请输入密码' }]}
           >
             <Input.Password
-              prefix={<LockOutlined />}
+              prefix={<LockOutlined style={{ color: '#C8C6C3' }} />}
               placeholder="密码"
+              style={{ borderRadius: '12px' }}
             />
           </Form.Item>
           <Form.Item>
@@ -74,12 +76,19 @@ const Login = ({ onLogin }: LoginProps) => {
               loading={loading}
               block
               size="large"
+              style={{
+                background: '#D97A4A',
+                borderColor: '#D97A4A',
+                borderRadius: '24px',
+                height: '48px',
+                fontWeight: '500'
+              }}
             >
               登录
             </Button>
           </Form.Item>
         </Form>
-        <div style={{ textAlign: 'center', color: '#999', fontSize: '12px' }}>
+        <div style={{ textAlign: 'center', color: '#A8A6A3', fontSize: '13px' }}>
           默认账号：admin / admin123
         </div>
       </Card>

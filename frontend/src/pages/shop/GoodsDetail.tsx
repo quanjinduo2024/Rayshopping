@@ -109,7 +109,7 @@ const GoodsDetail = () => {
     }
   }
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!userId) {
       message.warning('请先登录')
       navigate('/login')
@@ -117,15 +117,19 @@ const GoodsDetail = () => {
     }
     if (!goods) return
 
-    try {
-      // 先添加到购物车
-      await shopService.addToCart({ goods_id: goods.goods_id, quantity })
-      message.success('已加入购物车')
-      // 跳转到购物车页面
-      navigate('/cart')
-    } catch (err) {
-      message.error('操作失败')
-    }
+    // 直接跳转到结算页，传递商品信息
+    navigate('/checkout', {
+      state: {
+        mode: 'direct',
+        goods: {
+          goods_id: goods.goods_id,
+          name: goods.name,
+          price: goods.price,
+          image_url: goods.image_url,
+          quantity: quantity
+        }
+      }
+    })
   }
 
   if (loading) {
