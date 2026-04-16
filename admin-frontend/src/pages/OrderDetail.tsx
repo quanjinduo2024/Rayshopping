@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Typography, Spin, message, Button, Card, Tag, Space, Divider, Steps, Row, Col } from 'antd'
-import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, SendOutlined, CreditCardOutlined, ArrowLeftOutlined } from '@ant-design/icons'
+import { Typography, Spin, message, Button, Card, Tag, Space, Divider, Steps, Row, Col, Avatar } from 'antd'
+import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, SendOutlined, CreditCardOutlined, ArrowLeftOutlined, UserOutlined } from '@ant-design/icons'
 import { adminService } from '../services/api'
 import type { OrderDetail as OrderDetailType } from '../types'
 
@@ -169,6 +169,34 @@ const OrderDetail = () => {
               <Tag color={getStatusColor(order.status as OrderStatus)} style={{ fontSize: 14, padding: '4px 12px' }}>
                 {getStatusText(order.status as OrderStatus)}
               </Tag>
+            </div>
+          </Card>
+
+          <Card title="用户信息" style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '10px 0' }}>
+              <Avatar
+                size={64}
+                src={order.user_info?.avatar}
+                icon={<UserOutlined />}
+                style={{ marginRight: 16 }}
+              />
+              <div>
+                <div style={{ marginBottom: 4 }}>
+                  <Text strong style={{ fontSize: 16 }}>
+                    {order.user_info?.username || `用户 #${order.user_id}`}
+                  </Text>
+                </div>
+                {order.user_info?.phone && (
+                  <div>
+                    <Text type="secondary">手机号：</Text>
+                    <Text>{order.user_info.phone}</Text>
+                  </div>
+                )}
+                <div>
+                  <Text type="secondary">用户ID：</Text>
+                  <Text>{order.user_id}</Text>
+                </div>
+              </div>
             </div>
           </Card>
 

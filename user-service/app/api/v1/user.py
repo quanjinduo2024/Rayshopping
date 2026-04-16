@@ -70,6 +70,21 @@ def check_user_exist(user_id: int, db: Session = Depends(get_db)):
     return UserExistResponse(exists=exists)
 
 
+@router.get("/detail", response_model=UserResponse)
+def get_user_detail(
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    """获取用户详情（内部接口，供 shop-service 调用）"""
+    user = UserService.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="用户不存在"
+        )
+    return UserResponse.model_validate(user)
+
+
 @router.put("/password")
 def update_password(
     password_data: PasswordUpdate,

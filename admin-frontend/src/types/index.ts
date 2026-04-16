@@ -15,6 +15,13 @@ export interface AuthResponse {
   admin: Admin
 }
 
+export interface UserInfo {
+  user_id: number
+  username: string
+  phone?: string
+  avatar?: string
+}
+
 export interface OrderItem {
   item_id: number
   goods_id: number
@@ -29,6 +36,7 @@ export interface Order {
   total_price: number
   status: string
   create_time: string
+  user_info?: UserInfo
 }
 
 export interface OrderDetail extends Order {

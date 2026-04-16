@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Table, Typography, Tag, Space, Button, Select, Card, Spin, message } from 'antd'
-import { ShoppingOutlined, EyeOutlined, SendOutlined } from '@ant-design/icons'
+import { Table, Typography, Tag, Space, Button, Select, Card, Spin, message, Avatar } from 'antd'
+import { ShoppingOutlined, EyeOutlined, SendOutlined, UserOutlined } from '@ant-design/icons'
 import { adminService } from '../services/api'
 import type { Order } from '../types'
 
@@ -97,10 +97,21 @@ const OrderList = () => {
       width: 120,
     },
     {
-      title: '用户ID',
-      dataIndex: 'user_id',
-      key: 'user_id',
-      width: 100,
+      title: '用户',
+      key: 'user',
+      width: 180,
+      render: (_: any, record: Order) => (
+        <Space>
+          <Avatar
+            size="small"
+            src={record.user_info?.avatar}
+            icon={<UserOutlined />}
+          />
+          <span>
+            {record.user_info?.username || `用户 #${record.user_id}`}
+          </span>
+        </Space>
+      ),
     },
     {
       title: '订单金额',
