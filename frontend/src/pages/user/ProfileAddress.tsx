@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm } from 'antd'
+import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm, Cascader } from 'antd'
 import { EnvironmentOutlined, PlusOutlined, EditOutlined, DeleteOutlined, HomeOutlined } from '@ant-design/icons'
 import type { Address, AddressRequest } from '@/types/user'
 import { userService } from '@/services/userService'
+import regionData from '@/utils/regionData'
 
 const { Title, Text } = Typography
 
@@ -42,9 +43,7 @@ const ProfileAddress = () => {
     form.setFieldsValue({
       name: address.name,
       phone: address.phone,
-      province: address.province,
-      city: address.city,
-      district: address.district,
+      region: [address.province, address.city, address.district],
       detail: address.detail,
       is_default: address.is_default,
     })
@@ -82,13 +81,25 @@ const ProfileAddress = () => {
       const values = await form.validateFields()
       setLoading(true)
 
+      // 处理省市区数据
+      const [province, city, district] = values.region || []
+      const addressData = {
+        name: values.name,
+        phone: values.phone,
+        province,
+        city,
+        district,
+        detail: values.detail,
+        is_default: values.is_default || false,
+      }
+
       if (editingAddress) {
         // 编辑模式
-        await userService.updateAddress(editingAddress.address_id, values)
+        await userService.updateAddress(editingAddress.address_id, addressData)
         message.success('修改成功')
       } else {
         // 新增模式
-        await userService.addAddress(values)
+        await userService.addAddress(addressData)
         message.success('添加成功')
       }
 
@@ -217,31 +228,23 @@ const ProfileAddress = () => {
           </Form.Item>
           <Form.Item
             label="省/市/区"
-            required
+            name="region"
+            rules={[{ required: true, message: '请选择省/市/区' }]}
           >
-            <Space>
-              <Form.Item
-                name="province"
-                rules={[{ required: true, message: '请选择省份' }]}
-                style={{ marginBottom: 0, flex: 1 }}
-              >
-                <Input placeholder="省份" />
-              </Form.Item>
-              <Form.Item
-                name="city"
-                rules={[{ required: true, message: '请选择城市' }]}
-                style={{ marginBottom: 0, flex: 1 }}
-              >
-                <Input placeholder="城市" />
-              </Form.Item>
-              <Form.Item
-                name="district"
-                rules={[{ required: true, message: '请选择区县' }]}
-                style={{ marginBottom: 0, flex: 1 }}
-              >
-                <Input placeholder="区县" />
-              </Form.Item>
-            </Space>
+            <Cascader
+              options={regionData}
+              placeholder="请选择省/市/区"
+              showSearch={{
+                filter: (inputValue, path) =>
+                  path.some(
+                    (option) =>
+                      (option.label as string)
+                        .toLowerCase()
+                        .indexOf(inputValue.toLowerCase()) > -1
+                  ),
+              }}
+              style={{ width: '100%' }}
+            />
           </Form.Item>
           <Form.Item
             label="详细地址"
