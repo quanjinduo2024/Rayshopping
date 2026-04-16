@@ -16,7 +16,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api/v1/user': {
-        target: 'http://192.168.66.132:8001',  // 他自己的user-service
+        target: 'http://localhost:8001',  // 他自己的user-service
         changeOrigin: true,
       },
       '/api/v1': {

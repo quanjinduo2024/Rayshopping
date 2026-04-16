@@ -151,6 +151,22 @@ def update_avatar(
 
 # ==================== 地址相关接口 ====================
 
+@router.get("/address/detail/internal", response_model=AddressResponse)
+def get_address_detail_internal(
+    address_id: int,
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    """获取地址详情（内部接口，供 shop-service 调用）"""
+    address = UserService.get_address_by_id(db, address_id, user_id)
+    if not address:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="地址不存在"
+        )
+    return AddressResponse.model_validate(address)
+
+
 @router.get("/address", response_model=list[AddressResponse])
 def get_address_list(
     current_user_id: int = Depends(get_current_user),
@@ -168,22 +184,6 @@ def get_address(
 ):
     """获取单个地址"""
     address = UserService.get_address_by_id(db, address_id, current_user_id)
-    if not address:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="地址不存在"
-        )
-    return AddressResponse.model_validate(address)
-
-
-@router.get("/address/detail/internal", response_model=AddressResponse)
-def get_address_detail_internal(
-    address_id: int,
-    user_id: int,
-    db: Session = Depends(get_db),
-):
-    """获取地址详情（内部接口，供 shop-service 调用）"""
-    address = UserService.get_address_by_id(db, address_id, user_id)
     if not address:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
