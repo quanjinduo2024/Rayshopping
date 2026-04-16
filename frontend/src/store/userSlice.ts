@@ -70,7 +70,8 @@ const userSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false
-        state.error = action.error.message || '登录失败'
+        // 错误消息已在 request.ts 中显示，这里不再设置
+        state.error = null
       })
       // Register
       .addCase(register.pending, (state) => {

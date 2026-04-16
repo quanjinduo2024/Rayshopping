@@ -53,6 +53,9 @@ admin-frontend/vite.config.ts
 *.sqlite3
 data/
 
+# Uploads
+uploads/
+
 # Testing
 .pytest_cache/
 .coverage
@@ -60,3 +63,6 @@ htmlcov/
 
 # Build
 *.log
+
+# Claude Code
+.claude/
