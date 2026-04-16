@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm, Cascader } from 'antd'
+import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm, Cascader, Checkbox } from 'antd'
 import { EnvironmentOutlined, PlusOutlined, EditOutlined, DeleteOutlined, HomeOutlined } from '@ant-design/icons'
 import type { Address, AddressRequest } from '@/types/user'
 import { userService } from '@/services/userService'
@@ -256,8 +256,9 @@ const ProfileAddress = () => {
           <Form.Item
             name="is_default"
             valuePropName="checked"
+            initialValue={false}
           >
-            <input type="checkbox" /> 设为默认地址
+            <Checkbox>设为默认地址</Checkbox>
           </Form.Item>
         </Form>
       </Modal>
