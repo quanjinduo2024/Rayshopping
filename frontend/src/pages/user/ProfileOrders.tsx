@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, Tabs, Empty, Typography, Tag, Space, Button } from 'antd'
 import { ShoppingOutlined } from '@ant-design/icons'
 import { shopService } from '@/services/shopService'
@@ -11,7 +11,10 @@ type TabKey = 'all' | 'unpaid' | 'unsent' | 'unreceived' | 'unreviewed' | 'refun
 
 const ProfileOrders = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<TabKey>('all')
+  const [searchParams] = useSearchParams()
+  const statusFromUrl = searchParams.get('status') as TabKey | null
+
+  const [activeTab, setActiveTab] = useState<TabKey>(statusFromUrl || 'all')
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -20,7 +23,7 @@ const ProfileOrders = () => {
     try {
       const response = await shopService.getOrderList()
       // 转换 total_price 为数字类型
-      const ordersWithNumericPrice = response.items.map((order: Order) => ({
+      const ordersWithNumericPrice = (response.items || []).map((order: Order) => ({
         ...order,
         total_price: Number(order.total_price),
       }))
@@ -35,6 +38,23 @@ const ProfileOrders = () => {
   useEffect(() => {
     fetchOrders()
   }, [])
+
+  // 当 URL 参数变化时更新 activeTab
+  useEffect(() => {
+    if (statusFromUrl) {
+      setActiveTab(statusFromUrl)
+    }
+  }, [statusFromUrl])
+
+  const handleTabChange = useCallback(
+    (key: string) => {
+      const newTab = key as TabKey
+      setActiveTab(newTab)
+      // 更新 URL 参数但不刷新页面
+      navigate('/profile?tab=orders&status=' + newTab, { replace: true })
+    },
+    [navigate]
+  )
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -86,15 +106,35 @@ const ProfileOrders = () => {
     { key: 'refund', label: '退换/售后' },
   ]
 
-  // 简单过滤（暂时前端过滤，后续后端支持）
-  const filteredOrders = orders
+  // 按状态过滤订单
+  const getFilteredOrders = () => {
+    switch (activeTab) {
+      case 'all':
+        return orders
+      case 'unpaid':
+        return orders.filter((order) => order.status === 'pending_payment')
+      case 'unsent':
+        return orders.filter((order) => order.status === 'pending_shipment')
+      case 'unreceived':
+        return orders.filter((order) => order.status === 'pending_receipt')
+      case 'unreviewed':
+        // 待评价：已完成但未评价的订单（这里简化处理，所有已完成都算作待评价）
+        return orders.filter((order) => order.status === 'completed')
+      case 'refund':
+        return orders.filter((order) => order.status === 'refunded')
+      default:
+        return orders
+    }
+  }
+
+  const filteredOrders = getFilteredOrders()
 
   return (
     <div>
       <Card>
         <Tabs
           activeKey={activeTab}
-          onChange={(key) => setActiveTab(key as TabKey)}
+          onChange={handleTabChange}
           items={tabItems}
         />
 
