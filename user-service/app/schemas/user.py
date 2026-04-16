@@ -2,6 +2,36 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
+# ==================== 地址相关 Schema ====================
+
+class AddressBase(BaseModel):
+    name: str
+    phone: str
+    province: str
+    city: str
+    district: str
+    detail: str
+    is_default: bool = False
+
+
+class AddressCreate(AddressBase):
+    pass
+
+
+class AddressUpdate(AddressBase):
+    pass
+
+
+class AddressResponse(AddressBase):
+    address_id: int
+    user_id: int
+    create_time: datetime
+    update_time: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class UserBase(BaseModel):
     username: str
 

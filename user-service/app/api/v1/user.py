@@ -14,6 +14,9 @@ from app.schemas.user import (
     UserResponse,
     Token,
     UserExistResponse,
+    AddressCreate,
+    AddressUpdate,
+    AddressResponse,
 )
 from app.services.user_service import UserService
 from app.core.deps import get_current_user
@@ -129,3 +132,72 @@ def update_avatar(
     """更新用户头像"""
     user = UserService.update_avatar(db, current_user_id, avatar_data)
     return UserResponse.model_validate(user)
+
+
+# ==================== 地址相关接口 ====================
+
+@router.get("/address", response_model=list[AddressResponse])
+def get_address_list(
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取用户地址列表"""
+    return UserService.get_address_list(db, current_user_id)
+
+
+@router.get("/address/{address_id}", response_model=AddressResponse)
+def get_address(
+    address_id: int,
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取单个地址"""
+    address = UserService.get_address_by_id(db, address_id, current_user_id)
+    if not address:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="地址不存在"
+        )
+    return AddressResponse.model_validate(address)
+
+
+@router.post("/address", response_model=AddressResponse)
+def create_address(
+    address_data: AddressCreate,
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """创建地址"""
+    return UserService.create_address(db, current_user_id, address_data)
+
+
+@router.put("/address/{address_id}", response_model=AddressResponse)
+def update_address(
+    address_id: int,
+    address_data: AddressUpdate,
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """更新地址"""
+    return UserService.update_address(db, address_id, current_user_id, address_data)
+
+
+@router.delete("/address/{address_id}")
+def delete_address(
+    address_id: int,
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """删除地址"""
+    UserService.delete_address(db, address_id, current_user_id)
+    return {"message": "删除成功"}
+
+
+@router.put("/address/{address_id}/default", response_model=AddressResponse)
+def set_default_address(
+    address_id: int,
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """设置默认地址"""
+    return UserService.set_default_address(db, address_id, current_user_id)

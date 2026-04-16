@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, Button, Empty, Typography, Modal, Form, Input, message, Space, Tag, Popconfirm } from 'antd'
 import { EnvironmentOutlined, PlusOutlined, EditOutlined, DeleteOutlined, HomeOutlined } from '@ant-design/icons'
 import type { Address, AddressRequest } from '@/types/user'
+import { userService } from '@/services/userService'
 
 const { Title, Text } = Typography
 
@@ -10,32 +11,25 @@ const ProfileAddress = () => {
   const [editingAddress, setEditingAddress] = useState<Address | null>(null)
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [fetchLoading, setFetchLoading] = useState(false)
+  const [addressList, setAddressList] = useState<Address[]>([])
 
-  // 模拟地址数据（实际项目中从 API 获取）
-  const [addressList, setAddressList] = useState<Address[]>([
-    {
-      address_id: 1,
-      name: '张三',
-      phone: '13800138000',
-      province: '北京市',
-      city: '北京市',
-      district: '朝阳区',
-      detail: '建国路88号SOHO现代城A座1001室',
-      is_default: true,
-      create_time: new Date().toISOString(),
-    },
-    {
-      address_id: 2,
-      name: '李四',
-      phone: '13900139000',
-      province: '上海市',
-      city: '上海市',
-      district: '浦东新区',
-      detail: '陆家嘴金融中心B座2005室',
-      is_default: false,
-      create_time: new Date().toISOString(),
-    },
-  ])
+  // 获取地址列表
+  const fetchAddressList = async () => {
+    setFetchLoading(true)
+    try {
+      const list = await userService.getAddressList()
+      setAddressList(list)
+    } catch (error) {
+      message.error('获取地址列表失败')
+    } finally {
+      setFetchLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAddressList()
+  }, [])
 
   const handleAdd = () => {
     setEditingAddress(null)
@@ -57,25 +51,30 @@ const ProfileAddress = () => {
     setIsModalOpen(true)
   }
 
-  const handleDelete = (addressId: number) => {
+  const handleDelete = async (addressId: number) => {
     setLoading(true)
-    setTimeout(() => {
-      setAddressList(prev => prev.filter(item => item.address_id !== addressId))
+    try {
+      await userService.deleteAddress(addressId)
       message.success('删除成功')
+      await fetchAddressList()
+    } catch (error) {
+      message.error('删除失败')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
-  const handleSetDefault = (addressId: number) => {
+  const handleSetDefault = async (addressId: number) => {
     setLoading(true)
-    setTimeout(() => {
-      setAddressList(prev => prev.map(item => ({
-        ...item,
-        is_default: item.address_id === addressId,
-      })))
+    try {
+      await userService.setDefaultAddress(addressId)
       message.success('设置默认地址成功')
+      await fetchAddressList()
+    } catch (error) {
+      message.error('设置默认地址失败')
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
   const handleModalOk = async () => {
@@ -83,47 +82,23 @@ const ProfileAddress = () => {
       const values = await form.validateFields()
       setLoading(true)
 
-      setTimeout(() => {
-        if (editingAddress) {
-          // 编辑模式
-          setAddressList(prev => prev.map(item => {
-            if (item.address_id === editingAddress.address_id) {
-              const updated = { ...item, ...values }
-              // 如果设为默认，取消其他地址的默认状态
-              if (values.is_default) {
-                return { ...updated, is_default: true }
-              }
-              return updated
-            }
-            if (values.is_default) {
-              return { ...item, is_default: false }
-            }
-            return item
-          }))
-          message.success('修改成功')
-        } else {
-          // 新增模式
-          const newAddress: Address = {
-            address_id: Date.now(),
-            ...values,
-            create_time: new Date().toISOString(),
-          }
-          setAddressList(prev => {
-            // 如果设为默认，取消其他地址的默认状态
-            if (values.is_default) {
-              return [newAddress, ...prev.map(item => ({ ...item, is_default: false }))]
-            }
-            return [newAddress, ...prev]
-          })
-          message.success('添加成功')
-        }
+      if (editingAddress) {
+        // 编辑模式
+        await userService.updateAddress(editingAddress.address_id, values)
+        message.success('修改成功')
+      } else {
+        // 新增模式
+        await userService.addAddress(values)
+        message.success('添加成功')
+      }
 
-        setIsModalOpen(false)
-        form.resetFields()
-        setLoading(false)
-      }, 500)
+      setIsModalOpen(false)
+      form.resetFields()
+      await fetchAddressList()
     } catch (error) {
-      // 验证失败
+      message.error(editingAddress ? '修改失败' : '添加失败')
+    } finally {
+      setLoading(false)
     }
   }
 
