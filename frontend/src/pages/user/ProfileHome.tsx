@@ -136,37 +136,37 @@ const ProfileHome = () => {
   return (
     <div>
       {/* 用户信息卡片 */}
-      <Card style={{ marginBottom: 20 }}>
+      <Card style={{ marginBottom: 20, borderRadius: '16px', border: 'none' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Avatar
             size={80}
             src={getAvatarUrl()}
             icon={<UserOutlined />}
             style={{
-              background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+              background: 'linear-gradient(135deg, #D97A4A 0%, #C86B3A 100%)',
               marginRight: 24,
             }}
           />
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <Title level={3} style={{ margin: 0, marginRight: 12 }}>
+              <Title level={3} style={{ margin: 0, marginRight: 12, color: '#2C2A28', fontSize: '20px' }}>
                 {user?.username || '用户'}
               </Title>
-              <Tag color="blue">普通会员</Tag>
+              <Tag color="#D97A4A" style={{ borderRadius: '10px' }}>普通会员</Tag>
             </div>
-            <Text type="secondary">
+            <Text type="secondary" style={{ color: '#8C8A87' }}>
               注册时间：{user?.create_time ? new Date(user.create_time).toLocaleDateString() : '-'}
             </Text>
           </div>
           <Link to="/profile?tab=settings">
-            <Button icon={<StarOutlined />}>
+            <Button icon={<StarOutlined />} style={{ borderRadius: '20px' }}>
             </Button>
           </Link>
         </div>
       </Card>
 
       {/* 快捷入口 */}
-      <Card style={{ marginBottom: 20 }}>
+      <Card style={{ marginBottom: 20, borderRadius: '16px', border: 'none' }}>
         <Row gutter={16}>
           {quickActions.map((action, index) => (
             <Col span={6} key={index}>
@@ -174,34 +174,31 @@ const ProfileHome = () => {
                 onClick={() => handleQuickActionClick(action.tabKey)}
                 style={{
                   textAlign: 'center',
-                  padding: '20px 0',
+                  padding: '24px 0',
                   cursor: action.tabKey ? 'pointer' : 'default',
-                  borderRadius: 8,
+                  borderRadius: 12,
                   transition: 'all 0.3s',
                 }}
-                onMouseEnter={(e) => {
-                  if (action.tabKey) {
-                    e.currentTarget.style.background = '#f5f5f5'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent'
-                }}
+                className={action.tabKey ? 'prd-address-item' : ''}
               >
                 <div
                   style={{
-                    fontSize: 28,
-                    color: action.color,
-                    marginBottom: 8,
+                    fontSize: 32,
+                    color: action.color === '#1890ff' ? '#D97A4A' :
+                           action.color === '#52c41a' ? '#1890ff' :
+                           action.color === '#faad14' ? '#faad14' : '#ff4d4f',
+                    marginBottom: 12,
                   }}
                 >
                   {action.icon}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text strong style={{ fontSize: 18, color: action.color, marginRight: 4 }}>
+                  <Text strong style={{ fontSize: 20, color: action.color === '#1890ff' ? '#D97A4A' :
+                           action.color === '#52c41a' ? '#1890ff' :
+                           action.color === '#faad14' ? '#faad14' : '#ff4d4f', marginRight: 6, fontWeight: '600' }}>
                     {action.count}
                   </Text>
-                  <Text type="secondary">{action.title}</Text>
+                  <Text type="secondary" style={{ color: '#5E5B57' }}>{action.title}</Text>
                 </div>
               </div>
             </Col>

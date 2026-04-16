@@ -78,34 +78,34 @@ const ProfileSecurity = () => {
 
   return (
     <div>
-      <Title level={4} style={{ marginTop: 0, marginBottom: 20 }}>
-        <SafetyOutlined style={{ marginRight: 8 }} />
+      <Title level={4} style={{ marginTop: 0, marginBottom: 24, color: '#2C2A28', fontWeight: '600' }}>
+        <SafetyOutlined style={{ marginRight: 8, color: '#D97A4A' }} />
         账户安全
       </Title>
 
       {/* 账户安全概览 */}
-      <Card style={{ marginBottom: 20 }}>
+      <Card style={{ marginBottom: 20, borderRadius: '16px', border: 'none' }}>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12}>
-            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-              <LockOutlined style={{ fontSize: 32, color: '#52c41a', marginBottom: 8 }} />
+            <div style={{ textAlign: 'center', padding: '20px 0', background: '#FAF9F8', borderRadius: '12px' }}>
+              <LockOutlined style={{ fontSize: 36, color: '#52c41a', marginBottom: 12 }} />
               <div>
-                <Text strong>登录密码</Text>
+                <Text strong style={{ color: '#2C2A28' }}>登录密码</Text>
                 <br />
-                <Tag color="success">已设置</Tag>
+                <Tag color="success" style={{ borderRadius: '10px', marginTop: '8px' }}>已设置</Tag>
               </div>
             </div>
           </Col>
           <Col xs={24} sm={12}>
-            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-              <PhoneOutlined style={{ fontSize: 32, color: user?.phone ? '#52c41a' : '#faad14', marginBottom: 8 }} />
+            <div style={{ textAlign: 'center', padding: '20px 0', background: '#FAF9F8', borderRadius: '12px' }}>
+              <PhoneOutlined style={{ fontSize: 36, color: user?.phone ? '#52c41a' : '#faad14', marginBottom: 12 }} />
               <div>
-                <Text strong>绑定手机</Text>
+                <Text strong style={{ color: '#2C2A28' }}>绑定手机</Text>
                 <br />
                 {user?.phone ? (
-                  <Tag color="success">已绑定</Tag>
+                  <Tag color="success" style={{ borderRadius: '10px', marginTop: '8px' }}>已绑定</Tag>
                 ) : (
-                  <Tag color="warning">未绑定</Tag>
+                  <Tag color="warning" style={{ borderRadius: '10px', marginTop: '8px' }}>未绑定</Tag>
                 )}
               </div>
             </div>
@@ -114,9 +114,9 @@ const ProfileSecurity = () => {
       </Card>
 
       {/* 登录密码 */}
-      <Card title={<><LockOutlined style={{ marginRight: 8 }} />登录密码</>}>
-        <div style={{ marginBottom: 20 }}>
-          <Text type="secondary">定期修改密码可以有效保护账户安全</Text>
+      <Card title={<span style={{ color: '#2C2A28', fontWeight: '600' }}><LockOutlined style={{ marginRight: 8 }} />登录密码</span>} style={{ borderRadius: '16px', border: 'none' }}>
+        <div style={{ marginBottom: 24 }}>
+          <Text type="secondary" style={{ color: '#8C8A87' }}>定期修改密码可以有效保护账户安全</Text>
         </div>
         <Form
           form={passwordForm}
@@ -125,24 +125,25 @@ const ProfileSecurity = () => {
           style={{ maxWidth: 400 }}
         >
           <Form.Item
-            label="当前密码"
+            label={<span style={{ color: '#5E5B57' }}>当前密码</span>}
             name="currentPassword"
             rules={[{ required: true, message: '请输入当前密码' }]}
           >
-            <Input.Password placeholder="请输入当前密码" />
+            <Input.Password placeholder="请输入当前密码" style={{ borderRadius: '10px' }} />
           </Form.Item>
           <Form.Item
-            label="新密码"
+            label={<span style={{ color: '#5E5B57' }}>新密码</span>}
             name="newPassword"
             rules={[{ required: true, message: '请输入新密码' }]}
           >
             <Input.Password
               placeholder="请输入新密码（建议6位以上，包含字母和数字）"
               onChange={(e) => checkPasswordStrength(e.target.value)}
+              style={{ borderRadius: '10px' }}
             />
           </Form.Item>
           {passwordStrength > 0 && (
-            <Form.Item label="密码强度">
+            <Form.Item label={<span style={{ color: '#5E5B57' }}>密码强度</span>}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Progress
                   percent={passwordStrength}
@@ -151,21 +152,21 @@ const ProfileSecurity = () => {
                   style={{ flex: 1, marginRight: 12 }}
                   size="small"
                 />
-                <Text style={{ color: getPasswordStrengthColor(), minWidth: 60 }}>
+                <Text style={{ color: getPasswordStrengthColor(), minWidth: 60, fontWeight: '500' }}>
                   {getPasswordStrengthText()}
                 </Text>
               </div>
             </Form.Item>
           )}
           <Form.Item
-            label="确认新密码"
+            label={<span style={{ color: '#5E5B57' }}>确认新密码</span>}
             name="confirmPassword"
             rules={[{ required: true, message: '请再次输入新密码' }]}
           >
-            <Input.Password placeholder="请再次输入新密码" />
+            <Input.Password placeholder="请再次输入新密码" style={{ borderRadius: '10px' }} />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
+          <Form.Item style={{ marginTop: '24px' }}>
+            <Button type="primary" htmlType="submit" loading={loading} style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '24px', height: '44px', padding: '0 32px' }}>
               修改密码
             </Button>
           </Form.Item>

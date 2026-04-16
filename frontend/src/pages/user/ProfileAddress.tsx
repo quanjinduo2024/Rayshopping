@@ -115,24 +115,24 @@ const ProfileAddress = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Title level={4} style={{ marginTop: 0, marginBottom: 0 }}>
-          <EnvironmentOutlined style={{ marginRight: 8 }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <Title level={4} style={{ marginTop: 0, marginBottom: 0, color: '#2C2A28', fontWeight: '600' }}>
+          <EnvironmentOutlined style={{ marginRight: 8, color: '#D97A4A' }} />
           收货地址
         </Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '20px' }}>
           新增地址
         </Button>
       </div>
 
       {addressList.length === 0 ? (
-        <Card>
+        <Card style={{ borderRadius: '16px', border: 'none' }}>
           <Empty
             description={
               <div>
-                <Text type="secondary">暂无收货地址</Text>
+                <Text type="secondary" style={{ color: '#8C8A87' }}>暂无收货地址</Text>
                 <br />
-                <Button type="primary" style={{ marginTop: 16 }} onClick={handleAdd}>
+                <Button type="primary" style={{ marginTop: 16, background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '20px' }} onClick={handleAdd}>
                   添加地址
                 </Button>
               </div>
@@ -144,23 +144,25 @@ const ProfileAddress = () => {
           {addressList.map((address) => (
             <Card
               key={address.address_id}
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 16, borderRadius: '16px', border: 'none' }}
               actions={[
                 <Button
-                  type="link"
+                  type="text"
                   size="small"
                   icon={<EditOutlined />}
                   onClick={() => handleEdit(address)}
+                  style={{ color: '#5E5B57' }}
                 >
                   编辑
                 </Button>,
                 address.is_default ? null : (
                   <Button
-                    type="link"
+                    type="text"
                     size="small"
                     icon={<HomeOutlined />}
                     onClick={() => handleSetDefault(address.address_id)}
                     loading={loading}
+                    style={{ color: '#D97A4A' }}
                   >
                     设为默认
                   </Button>
@@ -172,7 +174,7 @@ const ProfileAddress = () => {
                   cancelText="取消"
                 >
                   <Button
-                    type="link"
+                    type="text"
                     size="small"
                     danger
                     icon={<DeleteOutlined />}
@@ -185,12 +187,12 @@ const ProfileAddress = () => {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <Space size="middle" style={{ marginBottom: 8 }}>
-                    <Text strong style={{ fontSize: 16 }}>{address.name}</Text>
-                    <Text>{address.phone}</Text>
-                    {address.is_default && <Tag color="blue">默认地址</Tag>}
+                  <Space size="middle" style={{ marginBottom: 10 }}>
+                    <Text strong style={{ fontSize: 16, color: '#2C2A28' }}>{address.name}</Text>
+                    <Text style={{ color: '#5E5B57' }}>{address.phone}</Text>
+                    {address.is_default && <Tag color="#D97A4A" style={{ borderRadius: '10px' }}>默认地址</Tag>}
                   </Space>
-                  <Text>
+                  <Text style={{ color: '#5E5B57' }}>
                     {address.province} {address.city} {address.district} {address.detail}
                   </Text>
                 </div>
@@ -201,33 +203,35 @@ const ProfileAddress = () => {
       )}
 
       <Modal
-        title={editingAddress ? '编辑收货地址' : '新增收货地址'}
+        title={<span style={{ color: '#2C2A28', fontWeight: '600' }}>{editingAddress ? '编辑收货地址' : '新增收货地址'}</span>}
         open={isModalOpen}
         onOk={handleModalOk}
         onCancel={() => setIsModalOpen(false)}
         confirmLoading={loading}
         width={500}
+        okButtonProps={{ style: { background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '20px' } }}
+        cancelButtonProps={{ style: { borderRadius: '20px' } }}
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="收货人"
+            label={<span style={{ color: '#5E5B57' }}>收货人</span>}
             name="name"
             rules={[{ required: true, message: '请输入收货人' }]}
           >
-            <Input placeholder="请输入收货人姓名" />
+            <Input placeholder="请输入收货人姓名" style={{ borderRadius: '10px' }} />
           </Form.Item>
           <Form.Item
-            label="手机号码"
+            label={<span style={{ color: '#5E5B57' }}>手机号码</span>}
             name="phone"
             rules={[
               { required: true, message: '请输入手机号码' },
               { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码' },
             ]}
           >
-            <Input placeholder="请输入手机号码" maxLength={11} />
+            <Input placeholder="请输入手机号码" maxLength={11} style={{ borderRadius: '10px' }} />
           </Form.Item>
           <Form.Item
-            label="省/市/区"
+            label={<span style={{ color: '#5E5B57' }}>省/市/区</span>}
             name="region"
             rules={[{ required: true, message: '请选择省/市/区' }]}
           >
@@ -243,22 +247,22 @@ const ProfileAddress = () => {
                         .indexOf(inputValue.toLowerCase()) > -1
                   ),
               }}
-              style={{ width: '100%' }}
+              style={{ width: '100%', borderRadius: '10px' }}
             />
           </Form.Item>
           <Form.Item
-            label="详细地址"
+            label={<span style={{ color: '#5E5B57' }}>详细地址</span>}
             name="detail"
             rules={[{ required: true, message: '请输入详细地址' }]}
           >
-            <Input.TextArea placeholder="请输入详细地址，如街道、门牌号等" rows={3} />
+            <Input.TextArea placeholder="请输入详细地址，如街道、门牌号等" rows={3} style={{ borderRadius: '10px' }} />
           </Form.Item>
           <Form.Item
             name="is_default"
             valuePropName="checked"
             initialValue={false}
           >
-            <Checkbox>设为默认地址</Checkbox>
+            <Checkbox style={{ color: '#5E5B57' }}>设为默认地址</Checkbox>
           </Form.Item>
         </Form>
       </Modal>

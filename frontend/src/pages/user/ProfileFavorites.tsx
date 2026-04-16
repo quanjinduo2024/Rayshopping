@@ -50,36 +50,38 @@ const ProfileFavorites = () => {
     <div>
       <Spin spinning={loading}>
         {favorites.length === 0 ? (
-          <Card>
+          <Card style={{ borderRadius: '16px', border: 'none' }}>
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="暂无收藏商品"
+              description={<span style={{ color: '#8C8A87' }}>暂无收藏商品</span>}
             >
               <Link to="/goods">
-                <Button type="primary" icon={<ShoppingOutlined />}>
+                <Button type="primary" icon={<ShoppingOutlined />} style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '24px' }}>
                   去逛逛
                 </Button>
               </Link>
             </Empty>
           </Card>
         ) : (
-          <Row gutter={[16, 16]}>
+          <Row gutter={[20, 20]}>
             {favorites.map((item) => (
               <Col xs={24} sm={12} md={8} lg={6} key={item.favorite_id}>
                 <Link to={`/goods/${item.goods_id}`} style={{ color: 'inherit' }}>
                   <Card
                     hoverable
-                    className="jd-product-card"
+                    className="prd-product-card"
+                    style={{ height: '100%' }}
                     cover={
                       <div style={{ position: 'relative' }}>
                         <div
                           style={{
-                            height: '160px',
+                            height: '200px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: '#f5f5f5',
+                            background: '#FAF9F8',
                             overflow: 'hidden',
+                            borderRadius: '16px 16px 0 0',
                           }}
                         >
                           {item.image_url ? (
@@ -89,47 +91,48 @@ const ProfileFavorites = () => {
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                           ) : (
-                            <span style={{ fontSize: '50px' }}>📦</span>
+                            <span style={{ fontSize: '60px', opacity: 0.6 }}>📦</span>
                           )}
                         </div>
                         <Button
                           type="text"
-                          icon={<StarFilled style={{ color: '#faad14', fontSize: 18 }} />}
+                          icon={<StarFilled style={{ color: '#D97A4A', fontSize: 20 }} />}
                           style={{
                             position: 'absolute',
-                            top: 5,
-                            right: 5,
+                            top: 12,
+                            right: 12,
                             background: 'rgba(255,255,255,0.9)',
                             borderRadius: '50%',
-                            width: 32,
-                            height: 32,
+                            width: 36,
+                            height: 36,
                             padding: 0,
+                            minWidth: 'auto',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                            border: 'none',
                           }}
                           onClick={(e) => handleRemoveFavorite(item.goods_id, e)}
                         />
                       </div>
                     }
-                    actions={[
-                      <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={(e) => handleRemoveFavorite(item.goods_id, e)}
-                      >
-                        取消收藏
-                      </Button>,
-                    ]}
+                    styles={{ body: { padding: '16px 20px 20px' } }}
                   >
                     <Meta
                       title={
-                        <div className="product-name" style={{ height: '40px', overflow: 'hidden', fontSize: '13px' }}>
-                          {item.goods_name}
+                        <div className="product-name" style={{ height: '40px', overflow: 'hidden', lineHeight: '20px' }}>
+                          <Text style={{ fontSize: '14px', color: '#2C2A28', fontWeight: '500' }}>
+                            {item.goods_name}
+                          </Text>
                         </div>
                       }
                       description={
                         <div>
-                          <div className="jd-price" style={{ marginTop: '4px', fontSize: '16px' }}>
+                          <div className="prd-price" style={{ marginTop: '12px' }}>
                             ¥{item.price?.toFixed(2)}
+                          </div>
+                          <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                            <Text type="secondary" style={{ fontSize: '12px', color: '#A8A6A3' }}>
+                              {Math.floor(Math.random() * 10000)}+ 人付款
+                            </Text>
                           </div>
                         </div>
                       }

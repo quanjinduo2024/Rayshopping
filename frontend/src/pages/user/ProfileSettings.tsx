@@ -88,63 +88,64 @@ const ProfileSettings = () => {
 
   return (
     <div>
-      <Title level={4} style={{ marginTop: 0, marginBottom: 20 }}>
-        <SettingOutlined style={{ marginRight: 8 }} />
+      <Title level={4} style={{ marginTop: 0, marginBottom: 24, color: '#2C2A28', fontWeight: '600' }}>
+        <SettingOutlined style={{ marginRight: 8, color: '#D97A4A' }} />
         个人设置
       </Title>
 
-      <Card title="头像设置" style={{ marginBottom: 20 }}>
+      <Card title={<span style={{ color: '#2C2A28', fontWeight: '600' }}>头像设置</span>} style={{ marginBottom: 20, borderRadius: '16px', border: 'none' }}>
         <Space size="large">
           <Avatar
             size={100}
             src={getAvatarUrl()}
             icon={<UserOutlined />}
             style={{
-              background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+              background: 'linear-gradient(135deg, #D97A4A 0%, #C86B3A 100%)',
             }}
           />
           <div>
-            <Text strong style={{ display: 'block', marginBottom: 8 }}>
+            <Text strong style={{ display: 'block', marginBottom: 12, color: '#2C2A28', fontSize: '16px' }}>
               {user?.username || '用户'}
             </Text>
             <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />} loading={avatarLoading}>
+              <Button icon={<UploadOutlined />} loading={avatarLoading} style={{ borderRadius: '20px', borderColor: '#D97A4A', color: '#D97A4A' }}>
                 上传头像
               </Button>
             </Upload>
-            <Text type="secondary" style={{ display: 'block', marginTop: 8, fontSize: 12 }}>
+            <Text type="secondary" style={{ display: 'block', marginTop: 10, fontSize: 12, color: '#8C8A87' }}>
               支持 JPG、PNG 格式，建议尺寸 200x200，大小不超过 5MB
             </Text>
           </div>
         </Space>
       </Card>
 
-      <Divider />
+      <Divider style={{ borderColor: '#EFEDEA', margin: '24px 0' }} />
 
-      <Card title="基本信息">
+      <Card title={<span style={{ color: '#2C2A28', fontWeight: '600' }}>基本信息</span>} style={{ borderRadius: '16px', border: 'none' }}>
         <Form
           form={form}
           layout="vertical"
           onFinish={handleUpdate}
           style={{ maxWidth: 400 }}
         >
-          <Form.Item label="用户ID">
-            <Input value={user?.user_id || ''} disabled />
+          <Form.Item label={<span style={{ color: '#5E5B57' }}>用户ID</span>}>
+            <Input value={user?.user_id || ''} disabled style={{ borderRadius: '10px' }} />
           </Form.Item>
-          <Form.Item label="用户名" name="username">
-            <Input disabled />
+          <Form.Item label={<span style={{ color: '#5E5B57' }}>用户名</span>} name="username">
+            <Input disabled style={{ borderRadius: '10px' }} />
           </Form.Item>
-          <Form.Item label="手机号" name="phone">
-            <Input placeholder="请输入手机号" />
+          <Form.Item label={<span style={{ color: '#5E5B57' }}>手机号</span>} name="phone">
+            <Input placeholder="请输入手机号" style={{ borderRadius: '10px' }} />
           </Form.Item>
-          <Form.Item label="注册时间">
+          <Form.Item label={<span style={{ color: '#5E5B57' }}>注册时间</span>}>
             <Input
               value={user?.create_time ? new Date(user.create_time).toLocaleString() : ''}
               disabled
+              style={{ borderRadius: '10px' }}
             />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
+          <Form.Item style={{ marginTop: '24px' }}>
+            <Button type="primary" htmlType="submit" loading={loading} style={{ background: '#D97A4A', borderColor: '#D97A4A', borderRadius: '24px', height: '44px', padding: '0 32px' }}>
               保存修改
             </Button>
           </Form.Item>

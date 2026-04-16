@@ -118,28 +118,29 @@ const Profile = () => {
   }
 
   return (
-    <div style={{ background: '#f5f5f5', minHeight: 'calc(100vh - 210px)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 0' }}>
+    <div className="prd-page-content" style={{ background: 'transparent', minHeight: 'calc(100vh - 210px)', padding: '24px 50px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* 面包屑导航 */}
-        <Breadcrumb items={getBreadcrumbItems()} style={{ marginBottom: '20px' }} />
+        <Breadcrumb items={getBreadcrumbItems()} style={{ marginBottom: '24px' }} />
 
         <Layout style={{ background: 'transparent', minHeight: '600px' }}>
           {/* 左侧导航 */}
           <Sider
-            width={200}
+            width={220}
             style={{
               background: '#fff',
-              borderRight: '1px solid #e8e8e8',
+              borderRadius: '16px',
+              overflow: 'hidden',
             }}
           >
-            <div style={{ padding: '20px', borderBottom: '1px solid #e8e8e8' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid #FAF9F8', background: '#FAF9F8' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <UserOutlined style={{ fontSize: '24px', color: '#1890ff', marginRight: '12px' }} />
+                <UserOutlined style={{ fontSize: '28px', color: '#D97A4A', marginRight: '12px' }} />
                 <div>
-                  <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                  <div style={{ fontWeight: '600', fontSize: '15px', color: '#2C2A28' }}>
                     {user?.username || '用户'}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>
+                  <div style={{ fontSize: '12px', color: '#8C8A87', marginTop: '4px' }}>
                     普通会员
                   </div>
                 </div>
@@ -160,6 +161,7 @@ const Profile = () => {
               background: '#fff',
               marginLeft: '20px',
               padding: '24px',
+              borderRadius: '16px',
             }}
           >
             {renderContent()}
