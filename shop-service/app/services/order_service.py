@@ -255,17 +255,21 @@ class OrderService:
         return OrderResponse.model_validate(order)
 
     @staticmethod
-    def admin_get_order_list(db: Session, status_filter: str | None) -> List[OrderResponse]:
-        """获取所有订单列表（管理用）"""
+    def admin_get_order_list(db: Session, status_filter: str | None) -> List[Order]:
+        """获取所有订单列表（管理用） - 返回原始 Order 对象"""
         query = db.query(Order).order_by(Order.create_time.desc())
         if status_filter:
             query = query.filter(Order.status == status_filter)
-        orders = query.all()
-        return [OrderResponse.model_validate(order) for order in orders]
+        return query.all()
 
     @staticmethod
-    def admin_get_order_detail(db: Session, order_id: int) -> OrderDetailResponse | None:
-        """获取订单详情（管理用）"""
+    def admin_get_order_detail(db: Session, order_id: int) -> Order | None:
+        """获取订单详情（管理用） - 返回原始 Order 对象"""
+        return db.query(Order).filter(Order.order_id == order_id).first()
+
+    @staticmethod
+    def admin_get_order_detail_with_items(db: Session, order_id: int) -> OrderDetailResponse | None:
+        """获取订单详情（包含商品项）"""
         order = db.query(Order).filter(Order.order_id == order_id).first()
 
         if not order:

@@ -25,5 +25,19 @@ class UserServiceClient:
             # 调用失败时暂时返回 True（后续完善降级策略）
             return True
 
+    async def get_user_detail(self, user_id: int) -> Optional[dict]:
+        """获取用户详情"""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(
+                    f"{self.base_url}/api/v1/user/detail",
+                    params={"user_id": user_id}
+                )
+                if response.status_code == 200:
+                    return response.json()
+                return None
+        except Exception:
+            return None
+
 
 user_client = UserServiceClient()

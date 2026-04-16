@@ -1,7 +1,18 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from decimal import Decimal
+
+
+class UserInfo(BaseModel):
+    """用户基本信息（用于订单展示）"""
+    user_id: int
+    username: str
+    phone: Optional[str] = None
+    avatar: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 
 class OrderBase(BaseModel):
@@ -22,6 +33,7 @@ class OrderResponse(OrderBase):
     order_id: int
     user_id: int
     create_time: datetime
+    user_info: Optional[UserInfo] = None
 
     class Config:
         from_attributes = True
