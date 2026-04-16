@@ -62,3 +62,6 @@ htmlcov/
 
 # Build
 *.log
+
+# Claude Code
+.claude/
