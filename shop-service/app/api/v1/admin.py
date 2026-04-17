@@ -43,9 +43,13 @@ async def _fetch_user_info(user_id: int) -> dict | None:
 
 async def _enrich_order_with_user_info(order_response: OrderResponse) -> OrderResponse:
     """为单个订单填充用户信息"""
-    user_info = await _fetch_user_info(order_response.user_id)
-    if user_info:
-        order_response.user_info = UserInfo(**user_info)
+    try:
+        user_info = await _fetch_user_info(order_response.user_id)
+        if user_info:
+            order_response.user_info = UserInfo(**user_info)
+    except Exception:
+        # 获取用户信息失败时，继续返回订单（不带用户信息）
+        pass
     return order_response
 
 
@@ -60,25 +64,33 @@ async def _enrich_orders_with_user_info(orders: list) -> list[OrderResponse]:
     # 并发获取用户信息
     user_info_map = {}
     if user_ids:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            tasks = []
-            for user_id in user_ids:
-                task = client.get(
-                    f"{settings.USER_SERVICE_URL}/api/v1/user/detail",
-                    params={"user_id": user_id}
-                )
-                tasks.append(task)
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                tasks = []
+                for user_id in user_ids:
+                    task = client.get(
+                        f"{settings.USER_SERVICE_URL}/api/v1/user/detail",
+                        params={"user_id": user_id}
+                    )
+                    tasks.append(task)
 
-            responses = await asyncio.gather(*tasks, return_exceptions=True)
+                responses = await asyncio.gather(*tasks, return_exceptions=True)
 
-            for user_id, response in zip(user_ids, responses):
-                if not isinstance(response, Exception) and response.status_code == 200:
-                    user_info_map[user_id] = response.json()
+                for user_id, response in zip(user_ids, responses):
+                    if not isinstance(response, Exception) and response.status_code == 200:
+                        user_info_map[user_id] = response.json()
+        except Exception:
+            # 获取用户信息失败时，继续返回订单列表（不带用户信息）
+            pass
 
     # 填充用户信息
     for order_resp in order_responses:
         if order_resp.user_id in user_info_map:
-            order_resp.user_info = UserInfo(**user_info_map[order_resp.user_id])
+            try:
+                order_resp.user_info = UserInfo(**user_info_map[order_resp.user_id])
+            except Exception:
+                # 用户信息解析失败时，跳过该用户信息
+                pass
 
     return order_responses
 
@@ -221,7 +233,7 @@ def delete_goods(
 # ==================== 统计接口 ====================
 
 @router.get("/stats/overview", response_model=StatsOverview)
-def get_stats_overview(
+async def get_stats_overview(
     current_admin_id: int = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
@@ -239,9 +251,12 @@ def get_stats_overview(
     # 商品统计
     total_goods = db.query(func.count(Goods.goods_id)).scalar() or 0
 
+    # 用户统计
+    total_users = await user_client.get_user_count()
+
     return StatsOverview(
         total_orders=total_orders,
-        total_users=0,  # 后续通过user-service获取
+        total_users=total_users,
         total_goods=total_goods,
         total_sales=total_sales,
         pending_payment_count=pending_payment_count,

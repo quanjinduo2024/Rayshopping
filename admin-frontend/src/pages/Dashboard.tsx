@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, Typography, Row, Col, Statistic, Spin, Tag, Space } from 'antd'
 import { ShoppingOutlined, UserOutlined, ShopOutlined, DollarOutlined, ClockCircleOutlined, CheckCircleOutlined, SendOutlined } from '@ant-design/icons'
 import { adminService } from '../services/api'
@@ -7,6 +8,7 @@ import type { StatsOverview } from '../types'
 const { Title } = Typography
 
 const Dashboard = () => {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState<StatsOverview | null>(null)
 
@@ -25,6 +27,10 @@ const Dashboard = () => {
   useEffect(() => {
     fetchStats()
   }, [])
+
+  const handleStatusClick = (status: string | null) => {
+    navigate('/orders', { state: { statusFilter: status } })
+  }
 
   return (
     <div style={{ padding: '20px 24px', background: '#FAF9F8', minHeight: '100vh' }}>
@@ -86,7 +92,11 @@ const Dashboard = () => {
         >
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} md={6}>
-              <div style={{ textAlign: 'center', padding: '16px', background: '#FFF9F5', borderRadius: '12px' }}>
+              <div
+                onClick={() => handleStatusClick('pending_payment')}
+                style={{ textAlign: 'center', padding: '16px', background: '#FFF9F5', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+                className="prd-address-item"
+              >
                 <ClockCircleOutlined style={{ fontSize: 32, color: '#faad14', marginBottom: 8 }} />
                 <div style={{ fontSize: 24, fontWeight: '600', color: '#2C2A28', marginBottom: 4 }}>
                   {stats?.pending_payment_count || 0}
@@ -95,7 +105,11 @@ const Dashboard = () => {
               </div>
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <div style={{ textAlign: 'center', padding: '16px', background: '#F0F7FF', borderRadius: '12px' }}>
+              <div
+                onClick={() => handleStatusClick('pending_shipment')}
+                style={{ textAlign: 'center', padding: '16px', background: '#F0F7FF', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+                className="prd-address-item"
+              >
                 <SendOutlined style={{ fontSize: 32, color: '#1890ff', marginBottom: 8 }} />
                 <div style={{ fontSize: 24, fontWeight: '600', color: '#2C2A28', marginBottom: 4 }}>
                   {stats?.pending_shipment_count || 0}
@@ -104,7 +118,11 @@ const Dashboard = () => {
               </div>
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <div style={{ textAlign: 'center', padding: '16px', background: '#E6FFFB', borderRadius: '12px' }}>
+              <div
+                onClick={() => handleStatusClick('pending_receipt')}
+                style={{ textAlign: 'center', padding: '16px', background: '#E6FFFB', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+                className="prd-address-item"
+              >
                 <ShoppingOutlined style={{ fontSize: 32, color: '#13c2c2', marginBottom: 8 }} />
                 <div style={{ fontSize: 24, fontWeight: '600', color: '#2C2A28', marginBottom: 4 }}>
                   {stats?.pending_receipt_count || 0}
@@ -113,7 +131,11 @@ const Dashboard = () => {
               </div>
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <div style={{ textAlign: 'center', padding: '16px', background: '#F6FFED', borderRadius: '12px' }}>
+              <div
+                onClick={() => handleStatusClick('completed')}
+                style={{ textAlign: 'center', padding: '16px', background: '#F6FFED', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.3s' }}
+                className="prd-address-item"
+              >
                 <CheckCircleOutlined style={{ fontSize: 32, color: '#52c41a', marginBottom: 8 }} />
                 <div style={{ fontSize: 24, fontWeight: '600', color: '#2C2A28', marginBottom: 4 }}>
                   {stats?.completed_count || 0}

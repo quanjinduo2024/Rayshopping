@@ -67,5 +67,19 @@ class UserServiceClient:
         except Exception:
             return None
 
+    async def get_user_count(self) -> int:
+        """获取用户总数"""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(
+                    f"{self.base_url}/api/v1/user/list",
+                    params={"page": 1, "size": 1}
+                )
+                if response.status_code == 200:
+                    return response.json().get("total", 0)
+                return 0
+        except Exception:
+            return 0
+
 
 user_client = UserServiceClient()
