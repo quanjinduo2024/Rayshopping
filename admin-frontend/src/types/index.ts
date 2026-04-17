@@ -128,3 +128,37 @@ export interface UserListResponse {
   items: User[]
   total: number
 }
+
+// ==================== 退换货相关类型 ====================
+
+export interface OrderReturn {
+  return_id: number
+  order_id: number
+  user_id: number
+  type: string
+  status: string
+  reason: string
+  images?: string
+  remark?: string
+  approve_remark?: string
+  create_time: string
+  update_time: string
+}
+
+export interface OrderReturnCreate {
+  order_id: number
+  type: string
+  reason: string
+  images?: string
+  remark?: string
+}
+
+export interface OrderReturnApprove {
+  approve: boolean
+  approve_remark?: string
+}
+
+export interface OrderReturnListResponse {
+  items: OrderReturn[]
+  total: number
+}

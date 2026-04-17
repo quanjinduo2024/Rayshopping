@@ -42,12 +42,22 @@ const ProfileOrders = () => {
   // 当 URL 参数变化时更新 activeTab
   useEffect(() => {
     if (statusFromUrl) {
+      // 如果是退换/售后标签，跳转到专门的退换货页面
+      if (statusFromUrl === 'refund') {
+        navigate('/profile?tab=returns', { replace: true })
+        return
+      }
       setActiveTab(statusFromUrl)
     }
-  }, [statusFromUrl])
+  }, [statusFromUrl, navigate])
 
   const handleTabChange = useCallback(
     (key: string) => {
+      // 如果点击的是退换/售后，跳转到专门的退换货页面
+      if (key === 'refund') {
+        navigate('/profile?tab=returns', { replace: true })
+        return
+      }
       const newTab = key as TabKey
       setActiveTab(newTab)
       // 更新 URL 参数但不刷新页面

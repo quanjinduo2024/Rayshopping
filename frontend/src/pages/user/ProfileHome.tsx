@@ -8,6 +8,7 @@ import {
   StarOutlined,
   ArrowRightOutlined,
   UserOutlined,
+  UndoOutlined,
 } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -16,6 +17,7 @@ import { fetchUserInfo } from '@/store/userSlice'
 import { Link } from 'react-router-dom'
 import { shopService } from '@/services/shopService'
 import type { Order } from '@/types/order'
+import type { OrderReturn } from '@/types/order'
 
 const { Title, Text } = Typography
 
@@ -28,6 +30,7 @@ const ProfileHome = () => {
     unreceived: 0,
     unreviewed: 0,
   })
+  const [pendingReturnCount, setPendingReturnCount] = useState(0)
 
   useEffect(() => {
     dispatch(fetchUserInfo())
@@ -71,6 +74,24 @@ const ProfileHome = () => {
     fetchOrders()
   }, [])
 
+  // 获取退换货列表并统计待审核数量
+  useEffect(() => {
+    const fetchReturns = async () => {
+      try {
+        const response = await shopService.getReturnList(1, 100)
+        const returnList = response.items || []
+
+        // 统计待审核的退换货申请数量
+        const pendingCount = returnList.filter((item: OrderReturn) => item.status === 'pending').length
+        setPendingReturnCount(pendingCount)
+      } catch (err) {
+        console.error('获取退换货列表失败', err)
+      }
+    }
+
+    fetchReturns()
+  }, [])
+
   const getAvatarUrl = () => {
     if (user?.avatar) {
       // 如果是相对路径，拼接完整URL
@@ -83,9 +104,13 @@ const ProfileHome = () => {
   }
 
   // 点击快捷入口跳转到对应订单标签页
-  const handleQuickActionClick = (tabKey: string | null) => {
+  const handleQuickActionClick = (tabKey: string | null, isReturns: boolean = false) => {
     if (tabKey) {
-      navigate('/profile?tab=orders&status=' + tabKey)
+      if (isReturns) {
+        navigate('/profile?tab=returns')
+      } else {
+        navigate('/profile?tab=orders&status=' + tabKey)
+      }
     }
   }
 
@@ -96,6 +121,7 @@ const ProfileHome = () => {
       count: orderCounts.unpaid,
       color: '#1890ff',
       tabKey: 'unpaid',
+      isReturns: false,
     },
     {
       icon: <WalletOutlined />,
@@ -103,6 +129,7 @@ const ProfileHome = () => {
       count: orderCounts.unreceived,
       color: '#52c41a',
       tabKey: 'unreceived',
+      isReturns: false,
     },
     {
       icon: <CommentOutlined />,
@@ -110,13 +137,15 @@ const ProfileHome = () => {
       count: orderCounts.unreviewed,
       color: '#faad14',
       tabKey: 'unreviewed',
+      isReturns: false,
     },
     {
-      icon: <GiftOutlined />,
-      title: '优惠券',
-      count: 0,
-      color: '#ff4d4f',
-      tabKey: "coupons",
+      icon: <UndoOutlined />,
+      title: '退换/售后',
+      count: pendingReturnCount,
+      color: '#722ed1',
+      tabKey: 'returns',
+      isReturns: true,
     },
   ]
 
@@ -171,7 +200,7 @@ const ProfileHome = () => {
           {quickActions.map((action, index) => (
             <Col span={6} key={index}>
               <div
-                onClick={() => handleQuickActionClick(action.tabKey)}
+                onClick={() => handleQuickActionClick(action.tabKey, action.isReturns)}
                 style={{
                   textAlign: 'center',
                   padding: '24px 0',
@@ -186,7 +215,8 @@ const ProfileHome = () => {
                     fontSize: 32,
                     color: action.color === '#1890ff' ? '#D97A4A' :
                            action.color === '#52c41a' ? '#1890ff' :
-                           action.color === '#faad14' ? '#faad14' : '#ff4d4f',
+                           action.color === '#faad14' ? '#faad14' :
+                           action.color === '#722ed1' ? '#722ed1' : '#ff4d4f',
                     marginBottom: 12,
                   }}
                 >
@@ -195,7 +225,8 @@ const ProfileHome = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Text strong style={{ fontSize: 20, color: action.color === '#1890ff' ? '#D97A4A' :
                            action.color === '#52c41a' ? '#1890ff' :
-                           action.color === '#faad14' ? '#faad14' : '#ff4d4f', marginRight: 6, fontWeight: '600' }}>
+                           action.color === '#faad14' ? '#faad14' :
+                           action.color === '#722ed1' ? '#722ed1' : '#ff4d4f', marginRight: 6, fontWeight: '600' }}>
                     {action.count}
                   </Text>
                   <Text type="secondary" style={{ color: '#5E5B57' }}>{action.title}</Text>

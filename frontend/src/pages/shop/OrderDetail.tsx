@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { Typography, Spin, message, Button, Card, Tag, Space, Divider, Steps, Row, Col } from 'antd'
-import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, CreditCardOutlined, SendOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { ShoppingOutlined, EnvironmentOutlined, CheckCircleOutlined, CreditCardOutlined, SendOutlined, CloseCircleOutlined, UndoOutlined } from '@ant-design/icons'
 import { shopService } from '@/services/shopService'
 import type { OrderDetail as OrderDetailType } from '@/types/order'
 
@@ -100,6 +100,7 @@ const OrderDetail = () => {
   const canPay = (status: OrderStatus) => status === 'pending_payment'
   const canReceive = (status: OrderStatus) => status === 'pending_receipt'
   const canCancel = (status: OrderStatus) => ['pending_payment', 'pending_shipment'].includes(status)
+  const canReturn = (status: OrderStatus) => ['pending_receipt', 'completed'].includes(status)
 
   const handlePay = async () => {
     if (!order) return
@@ -225,6 +226,16 @@ const OrderDetail = () => {
                     style={{ borderRadius: 20 }}
                   >
                     取消订单
+                  </Button>
+                )}
+                {canReturn(order.status as OrderStatus) && (
+                  <Button
+                    type="primary"
+                    icon={<UndoOutlined />}
+                    onClick={() => navigate(`/orders/${order.order_id}/return`)}
+                    style={{ borderRadius: 20 }}
+                  >
+                    申请退货/换货
                   </Button>
                 )}
               </Space>

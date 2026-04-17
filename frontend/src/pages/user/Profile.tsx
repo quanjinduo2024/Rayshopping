@@ -9,6 +9,7 @@ import {
   SafetyOutlined,
   SettingOutlined,
   HomeOutlined,
+  UndoOutlined,
 } from '@ant-design/icons'
 import type { AppDispatch, RootState } from '@/store'
 import { fetchUserInfo } from '@/store/userSlice'
@@ -19,11 +20,12 @@ import ProfileFavorites from './ProfileFavorites'
 import ProfileAddress from './ProfileAddress'
 import ProfileSecurity from './ProfileSecurity'
 import ProfileSettings from './ProfileSettings'
+import ProfileReturns from './ProfileReturns'
 
 const { Content, Sider } = Layout
 const { Title } = Typography
 
-type MenuKey = 'home' | 'orders' | 'favorites' | 'address' | 'security' | 'settings'
+type MenuKey = 'home' | 'orders' | 'returns' | 'favorites' | 'address' | 'security' | 'settings'
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -34,7 +36,7 @@ const Profile = () => {
   const getSelectedKey = (): MenuKey => {
     const params = new URLSearchParams(location.search)
     const tab = params.get('tab') as MenuKey
-    return tab && ['home', 'orders', 'favorites', 'address', 'security', 'settings'].includes(tab)
+    return tab && ['home', 'orders', 'returns', 'favorites', 'address', 'security', 'settings'].includes(tab)
       ? tab
       : 'home'
   }
@@ -59,6 +61,11 @@ const Profile = () => {
       key: 'orders',
       icon: <ShoppingOutlined />,
       label: '我的订单',
+    },
+    {
+      key: 'returns',
+      icon: <UndoOutlined />,
+      label: '退换/售后',
     },
     {
       key: 'favorites',
@@ -92,6 +99,8 @@ const Profile = () => {
         return <ProfileHome />
       case 'orders':
         return <ProfileOrders />
+      case 'returns':
+        return <ProfileReturns />
       case 'favorites':
         return <ProfileFavorites />
       case 'address':

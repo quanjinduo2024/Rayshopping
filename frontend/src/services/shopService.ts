@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 import type { Goods, GoodsListResponse } from '@/types/goods'
 import type { CartItem, CartListResponse, AddCartRequest, UpdateCartRequest } from '@/types/cart'
-import type { Order, OrderDetail, OrderListResponse, CheckoutRequest, CartCheckoutRequest } from '@/types/order'
+import type { Order, OrderDetail, OrderListResponse, CheckoutRequest, CartCheckoutRequest, OrderReturn, OrderReturnCreate, OrderReturnListResponse } from '@/types/order'
 import type { FavoriteItem, FavoriteListResponse, AddFavoriteRequest, FavoriteCheckResponse, FavoriteIdsResponse } from '@/types/favorite'
 
 export const shopService = {
@@ -79,5 +79,19 @@ export const shopService = {
 
   getFavoriteIds: (): Promise<FavoriteIdsResponse> => {
     return request.get('/api/v1/favorite/ids')
+  },
+
+  // ==================== 退换货相关 ====================
+
+  createReturn: (data: OrderReturnCreate): Promise<OrderReturn> => {
+    return request.post('/api/v1/order/return/create', data)
+  },
+
+  getReturnList: (page: number = 1, size: number = 20): Promise<OrderReturnListResponse> => {
+    return request.get('/api/v1/order/return/list', { params: { page, size } })
+  },
+
+  getReturnDetail: (returnId: number): Promise<OrderReturn> => {
+    return request.get('/api/v1/order/return/detail', { params: { return_id: returnId } })
   },
 }

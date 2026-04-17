@@ -12,6 +12,7 @@ import Favorites from './pages/shop/Favorites'
 import Checkout from './pages/shop/Checkout'
 import OrderList from './pages/shop/OrderList'
 import OrderDetail from './pages/shop/OrderDetail'
+import ReturnApply from './pages/shop/ReturnApply'
 import PrivateRoute from './components/common/PrivateRoute'
 
 const { Content } = Layout
@@ -72,6 +73,14 @@ function App() {
             element={
               <PrivateRoute>
                 <OrderDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/orders/:id/return"
+            element={
+              <PrivateRoute>
+                <ReturnApply />
               </PrivateRoute>
             }
           />

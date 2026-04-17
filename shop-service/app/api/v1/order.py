@@ -9,7 +9,13 @@ from app.schemas.order import (
     OrderListResponse,
     OrderDetailResponse,
 )
+from app.schemas.order_return import (
+    OrderReturnCreate,
+    OrderReturnResponse,
+    OrderReturnListResponse,
+)
 from app.services.order_service import OrderService
+from app.services.order_return_service import OrderReturnService
 from app.core.deps import get_current_user
 
 router = APIRouter(prefix="/order", tags=["order"])
@@ -89,3 +95,46 @@ def cancel_order(
 ):
     """取消订单"""
     return OrderService.cancel_order(db, current_user_id, order_id)
+
+
+# ==================== 退换货接口 ====================
+
+@router.post("/return/create", response_model=OrderReturnResponse)
+def create_return(
+    return_data: OrderReturnCreate,
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """发起退换货申请"""
+    return OrderReturnService.create_return(db, current_user_id, return_data)
+
+
+@router.get("/return/list", response_model=OrderReturnListResponse)
+def get_return_list(
+    page: int = Query(1, ge=1, description="页码"),
+    size: int = Query(20, ge=1, le=100, description="每页数量"),
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取我的退换货申请列表"""
+    items, total = OrderReturnService.get_return_list_by_user(db, current_user_id, page, size)
+    return OrderReturnListResponse(
+        items=[OrderReturnResponse.model_validate(item) for item in items],
+        total=total
+    )
+
+
+@router.get("/return/detail", response_model=OrderReturnResponse)
+def get_return_detail(
+    return_id: int = Query(..., description="申请ID"),
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """获取退换货申请详情"""
+    db_return = OrderReturnService.get_return_detail_by_user(db, return_id, current_user_id)
+    if not db_return:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="申请不存在"
+        )
+    return OrderReturnResponse.model_validate(db_return)

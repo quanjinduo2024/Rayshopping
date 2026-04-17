@@ -9,9 +9,15 @@ from app.database import get_db
 from app.schemas.admin import AdminLogin, Token, StatsOverview
 from app.schemas.order import OrderListResponse, OrderDetailResponse, OrderResponse, OrderResponse, UserInfo
 from app.schemas.goods import GoodsListResponse, GoodsResponse, GoodsCreate, GoodsUpdate
+from app.schemas.order_return import (
+    OrderReturnResponse,
+    OrderReturnListResponse,
+    OrderReturnApprove,
+)
 from app.services.admin_service import AdminService
 from app.services.order_service import OrderService
 from app.services.goods_service import GoodsService
+from app.services.order_return_service import OrderReturnService
 from app.services.user_client import user_client
 from app.models.order import Order
 from app.models.goods import Goods
@@ -276,3 +282,59 @@ async def get_user_detail(
             detail="用户不存在"
         )
     return user_info
+
+
+# ==================== 退换货管理接口 ====================
+
+@router.get("/return/list", response_model=OrderReturnListResponse)
+def get_return_list(
+    status: str | None = Query(None, description="状态筛选"),
+    user_id: int | None = Query(None, description="用户ID筛选"),
+    page: int = Query(1, ge=1, description="页码"),
+    size: int = Query(20, ge=1, le=100, description="每页数量"),
+    current_admin_id: int = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """获取退换货申请列表"""
+    items, total = OrderReturnService.get_return_list_admin(db, status, user_id, page, size)
+    return OrderReturnListResponse(
+        items=[OrderReturnResponse.model_validate(item) for item in items],
+        total=total
+    )
+
+
+@router.get("/return/detail", response_model=OrderReturnResponse)
+def get_return_detail(
+    return_id: int = Query(..., description="申请ID"),
+    current_admin_id: int = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """获取退换货申请详情"""
+    db_return = OrderReturnService.get_return_detail(db, return_id)
+    if not db_return:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="申请不存在"
+        )
+    return OrderReturnResponse.model_validate(db_return)
+
+
+@router.post("/return/approve", response_model=OrderReturnResponse)
+def approve_return(
+    return_id: int = Query(..., description="申请ID"),
+    approve_data: OrderReturnApprove = ...,
+    current_admin_id: int = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """审核退换货申请"""
+    return OrderReturnService.approve_return(db, return_id, approve_data)
+
+
+@router.post("/return/complete", response_model=OrderReturnResponse)
+def complete_return(
+    return_id: int = Query(..., description="申请ID"),
+    current_admin_id: int = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """完成退换货处理"""
+    return OrderReturnService.complete_return(db, return_id)

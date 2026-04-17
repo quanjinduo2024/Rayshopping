@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Layout, Typography, Menu, Space, Button, message } from 'antd'
-import { ShoppingOutlined, ShopOutlined, UserOutlined, DashboardOutlined, LogoutOutlined } from '@ant-design/icons'
+import { ShoppingOutlined, ShopOutlined, UserOutlined, DashboardOutlined, LogoutOutlined, UndoOutlined } from '@ant-design/icons'
 import Login from './pages/Login'
 import OrderList from './pages/OrderList'
 import OrderDetail from './pages/OrderDetail'
@@ -9,6 +9,7 @@ import GoodsEdit from './pages/GoodsEdit'
 import Dashboard from './pages/Dashboard'
 import UserList from './pages/UserList'
 import UserDetail from './pages/UserDetail'
+import ReturnList from './pages/ReturnList'
 import { useState, useEffect } from 'react'
 import type { Admin } from './types'
 import { adminService } from './services/api'
@@ -35,6 +36,11 @@ const AdminLayout = ({ admin, onLogout }: { admin: Admin | null, onLogout: () =>
       key: '/orders',
       icon: <ShoppingOutlined />,
       label: '订单管理',
+    },
+    {
+      key: '/returns',
+      icon: <UndoOutlined />,
+      label: '退换货管理',
     },
     {
       key: '/goods',
@@ -92,6 +98,7 @@ const AdminLayout = ({ admin, onLogout }: { admin: Admin | null, onLogout: () =>
             <Route path="/" element={<Dashboard />} />
             <Route path="/orders" element={<OrderList />} />
             <Route path="/orders/:id" element={<OrderDetail />} />
+            <Route path="/returns" element={<ReturnList />} />
             <Route path="/goods" element={<GoodsList />} />
             <Route path="/goods/:id" element={<GoodsEdit />} />
             <Route path="/users" element={<UserList />} />

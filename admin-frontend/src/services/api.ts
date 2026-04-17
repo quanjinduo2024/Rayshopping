@@ -12,6 +12,9 @@ import type {
   StatsOverview,
   UserListResponse,
   User,
+  OrderReturn,
+  OrderReturnListResponse,
+  OrderReturnApprove,
 } from '../types'
 
 const api = axios.create({
@@ -115,6 +118,27 @@ export const adminService = {
 
   getUserDetail: (userId: number): Promise<User> => {
     return api.get('/user/detail', { params: { user_id: userId } }).then((res) => res.data)
+  },
+
+  // ==================== 退换货管理 ====================
+
+  getReturnList: (status?: string, user_id?: number, page: number = 1, size: number = 20): Promise<OrderReturnListResponse> => {
+    const params: Record<string, any> = { page, size }
+    if (status) params.status = status
+    if (user_id) params.user_id = user_id
+    return api.get('/return/list', { params }).then((res) => res.data)
+  },
+
+  getReturnDetail: (returnId: number): Promise<OrderReturn> => {
+    return api.get('/return/detail', { params: { return_id: returnId } }).then((res) => res.data)
+  },
+
+  approveReturn: (returnId: number, approve: boolean, approve_remark?: string): Promise<OrderReturn> => {
+    return api.post('/return/approve', { approve, approve_remark }, { params: { return_id: returnId } }).then((res) => res.data)
+  },
+
+  completeReturn: (returnId: number): Promise<OrderReturn> => {
+    return api.post('/return/complete', null, { params: { return_id: returnId } }).then((res) => res.data)
   },
 }
 
